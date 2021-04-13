@@ -1,5 +1,5 @@
 ---
-title: "MyLabJournal"
+title: "DeCoMaP - Détection de la corruption dans les marchés publics"
 output: html_document
 ---
 
