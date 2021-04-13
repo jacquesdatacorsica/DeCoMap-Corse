@@ -1,0 +1,17 @@
+base
+tidyverse
+ggplot2
+tibble
+tidyr
+readr
+purrr
+dplyr
+stringr
+forcats
+banR
+jsonlite
+magrittr
+data.tree
+geosphere
+sf
+cartography

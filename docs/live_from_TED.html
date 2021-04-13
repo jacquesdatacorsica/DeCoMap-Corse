@@ -9,6 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Pierre-Henri Morand" />
 
 
 <title>Live from Tender Electronic Daily Database</title>
@@ -389,11 +390,29 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Live from Tender Electronic Daily Database</h1>
+<h4 class="author">Pierre-Henri Morand</h4>
+<h4 class="date">date: 2021-04-13</h4>
 
 </div>
 
 
-
+<p>version: last update 2021-04-13</p>
+<div id="presentation-of-the-database" class="section level1">
+<h1>Presentation of the database</h1>
+<div id="main-characteristics" class="section level2">
+<h2>Main characteristics</h2>
+<ul>
+<li><p>The data comes from public procurement standard forms, which are filled in by contracting bodies and sent as notices for publication to TED. Most of the variables in the data directly correspond to the fields in the forms.</p></li>
+<li><p>TED - Contract award notices 2010-2019. It is a merged file for the analysis across the years.</p></li>
+<li><p>TED data has multiple levels. Contract awards (CAs), which is the fifth section of a CAN standard form. Each CAN has one or more CAs. ID_award_ca is an ID of a CA.</p></li>
+<li><p>These levels serve different purposes. To give an example, a CAN generally informs on the result of the procurement (“The ministry has bought furniture”); and the three individual CAs, nested within the CAN, inform about the specific detail (“The ministry has bought a chair from company A”; “The ministry has bought a table from company B”; “The ministry has bought a cupboard from company B”).</p></li>
+</ul>
+</div>
+<div id="downloading-the-data" class="section level2">
+<h2>Downloading the data</h2>
+<p>The latest database can be downloaded directly <a href="https://data.europa.eu/euodp/repository/ec/dg-grow/mapps/TED%202020/Export_OpenDataCAN_from2010to2019.csv">here</a></p>
+</div>
+</div>
 
 
 
