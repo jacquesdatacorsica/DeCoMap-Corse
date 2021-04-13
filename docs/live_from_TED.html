@@ -15,7 +15,7 @@
 <title>Live from Tender Electronic Daily Database</title>
 
 <script src="site_libs/header-attrs-2.6/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -27,6 +27,14 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.17/datatables.js"></script>
+<link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -391,12 +399,12 @@ div.tocify {
 
 <h1 class="title toc-ignore">Live from Tender Electronic Daily Database</h1>
 <h4 class="author">Pierre-Henri Morand</h4>
-<h4 class="date">date: 2021-04-13</h4>
+<h4 class="date">date: 2021-04-14</h4>
 
 </div>
 
 
-<p>version: last update 2021-04-13</p>
+<p>version: last update 2021-04-14</p>
 <div id="presentation-of-the-database" class="section level1">
 <h1>Presentation of the database</h1>
 <div id="main-characteristics" class="section level2">
@@ -412,6 +420,11 @@ div.tocify {
 <h2>Downloading the data</h2>
 <p>The latest database can be downloaded directly <a href="https://data.europa.eu/euodp/repository/ec/dg-grow/mapps/TED%202020/Export_OpenDataCAN_from2010to2019.csv">here</a></p>
 </div>
+</div>
+<div id="some-data-to-work-up-the-appetite" class="section level1">
+<h1>Some data to work up the appetite!</h1>
+<p>The database represents 20196 contrats awarded between 2010 and 2019. Here is the number of contracts by buyers country and by year : <div id="htmlwidget-e06a69ded06e2d8d3776" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e06a69ded06e2d8d3776">{"x":{"filter":"none","data":[["AT","BE","BG","CH","CY","CZ","DE","DK","EE","ES","FI","FR","GR","HU","IE","IS","IT","LT","LU","LV","MT","NL","NO","PL","PT","RO","SE","SI","SK","UK"],["AT","BE","BG","CH","CY","CZ","DE","DK","EE","ES","FI","FR","GR","HU","IE","IS","IT","LT","LU","LV","MT","NL","NO","PL","PT","RO","SE","SI","SK","UK"],["2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010"],[186,211,126,40,37,207,1140,188,103,1046,426,7677,47,210,73,1,781,165,32,163,19,235,184,4755,39,657,285,171,71,921]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Country code<\/th>\n      <th>Year<\/th>\n      <th>Nb of Contracts<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":1},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script> France (as well as Poland) accounts for a large share of the data available under TED. <img src="live_from_TED_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 </div>
 
 

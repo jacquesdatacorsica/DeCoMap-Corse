@@ -64,4 +64,15 @@ if (!file.exists(TED_destfile)) {
 # creating the dataframe
 TED<- read.csv(TED_destfile)
 ```
+# Some data to work up the appetite!
+
+The database represents `r length(TED$ID_NOTICE_CAN)` contrats awarded between 2010 and 2019. Here is the number of contracts by buyers country and by year :
+```{r, echo=FALSE}
+library(DT)
+datatable(table(TED$ISO_COUNTRY_CODE, TED$YEAR), colnames = c("Country code", "Year", "Nb of Contracts"))
+```
+France (as well as Poland) accounts for a large share of the data available under TED.
+```{r, echo=FALSE}
+barplot(table(TED[which(TED$ISO_COUNTRY_CODE=="FR" |TED$ISO_COUNTRY_CODE=="DE"|TED$ISO_COUNTRY_CODE=="IT"|TED$ISO_COUNTRY_CODE=="UK"|TED$ISO_COUNTRY_CODE=="PL"),]$YEAR, TED[which(TED$ISO_COUNTRY_CODE=="FR" |TED$ISO_COUNTRY_CODE=="DE"|TED$ISO_COUNTRY_CODE=="IT"|TED$ISO_COUNTRY_CODE=="UK"|TED$ISO_COUNTRY_CODE=="PL"),]$ISO_COUNTRY_CODE), legend.text = TRUE, main="cumulative nb of contracts", ylab="Nb", xlab="Country")
+```
 
