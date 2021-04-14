@@ -14,3 +14,6 @@ output:
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 ```
 
+# The BOAMP in a nushell
+# Some statistics
+# BOAMP during 2020

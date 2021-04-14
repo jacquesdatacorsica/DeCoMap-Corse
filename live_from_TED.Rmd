@@ -1,11 +1,11 @@
 ---
 title: "Live from Tender Electronic Daily Database"
 author: "Pierre-Henri Morand"
-date: "date: `r Sys.Date()`"
+date: 'date: `r Sys.Date()`'
 output:
   html_document:
-    toc: true
-    toc_float: true
+    toc: yes
+    toc_float: yes
     collapsed: false
     number_sections: false
     toc_depth: 1
@@ -13,10 +13,12 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+knitr::opts_chunk$set(cache = TRUE, warning = TRUE,  message = FALSE, cache.lazy = FALSE)
+
+#knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+
 ```
 
-version:  last update `r Sys.Date()`
 
 # Presentation of the database
 
@@ -35,7 +37,8 @@ contracting bodies and sent as notices for publication to TED. Most of the varia
 
 The latest database can be downloaded directly [here](https://data.europa.eu/euodp/repository/ec/dg-grow/mapps/TED%202020/Export_OpenDataCAN_from2010to2019.csv)
 
-```{r, echo=FALSE}
+
+```{r data dwonloading, echo=FALSE, message=TRUE, warning=TRUE, cache=TRUE}
 #importing useful library
 
 library(tidyverse)
@@ -58,21 +61,75 @@ if (!dir.exists(data_dir)) {
 TED_url <- "https://data.europa.eu/euodp/repository/ec/dg-grow/mapps/TED%202020/Export_OpenDataCAN_from2010to2019.csv"
 TED_destfile <-  str_c(data_dir, "/Export_OpenDataCAN_from2010to2019.csv")
 if (!file.exists(TED_destfile)) {
- download.file(TED_url, TED_destfile)
+  download.file(TED_url, TED_destfile)
 }
 
 # creating the dataframe
 TED<- read.csv(TED_destfile)
 ```
+
 # Some data to work up the appetite!
 
 The database represents `r length(TED$ID_NOTICE_CAN)` contrats awarded between 2010 and 2019. Here is the number of contracts by buyers country and by year :
-```{r, echo=FALSE}
+
+```{r echo=FALSE,  cache=TRUE}
 library(DT)
-datatable(table(TED$ISO_COUNTRY_CODE, TED$YEAR), colnames = c("Country code", "Year", "Nb of Contracts"))
-```
-France (as well as Poland) accounts for a large share of the data available under TED.
-```{r, echo=FALSE}
-barplot(table(TED[which(TED$ISO_COUNTRY_CODE=="FR" |TED$ISO_COUNTRY_CODE=="DE"|TED$ISO_COUNTRY_CODE=="IT"|TED$ISO_COUNTRY_CODE=="UK"|TED$ISO_COUNTRY_CODE=="PL"),]$YEAR, TED[which(TED$ISO_COUNTRY_CODE=="FR" |TED$ISO_COUNTRY_CODE=="DE"|TED$ISO_COUNTRY_CODE=="IT"|TED$ISO_COUNTRY_CODE=="UK"|TED$ISO_COUNTRY_CODE=="PL"),]$ISO_COUNTRY_CODE), legend.text = TRUE, main="cumulative nb of contracts", ylab="Nb", xlab="Country")
+library(tidyverse)
+
+#datatable(table(TED$ISO_COUNTRY_CODE, TED$YEAR), colnames = c("Country code", "Year", "Nb of Contracts"))
+table_1<-as.data.frame(table(TED$ISO_COUNTRY_CODE, TED$YEAR))
+table_1 %>%
+  datatable(extensions = 'Buttons',
+            options = list(dom = 'Blfrtip',
+                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                           lengthMenu = list(c(10,25,50,-1),
+                                             c(10,25,50,"All"))), colnames = c("Country code", "Year", "Nb of Contracts"))
 ```
 
+France (as well as Poland) accounts for a large share of the data available under TED.
+
+```{r echo=FALSE,  cache=TRUE}
+table_2<-table(TED[which(TED$ISO_COUNTRY_CODE=="FR" |TED$ISO_COUNTRY_CODE=="DE"|TED$ISO_COUNTRY_CODE=="IT"|TED$ISO_COUNTRY_CODE=="UK"|TED$ISO_COUNTRY_CODE=="PL"),]$YEAR, TED[which(TED$ISO_COUNTRY_CODE=="FR" |TED$ISO_COUNTRY_CODE=="DE"|TED$ISO_COUNTRY_CODE=="IT"|TED$ISO_COUNTRY_CODE=="UK"|TED$ISO_COUNTRY_CODE=="PL"),]$ISO_COUNTRY_CODE)
+barplot(table_2, legend.text = TRUE, main="cumulative nb of contracts", ylab="Nb", xlab="Country")
+```
+  
+
+The distribution of contracts by main categories gives us, for the entire database:
+
+```{r, echo=FALSE, cache=TRUE}
+library(RColorBrewer)
+count<-table(TED$TYPE_OF_CONTRACT)
+color <- brewer.pal(length(count), "Set2")
+pie(table(TED$TYPE_OF_CONTRACT), labels = table(TED$TYPE_OF_CONTRACT), col = color, density = 50, angle = 45)
+pie_labels <- paste0(c("Works: ", "Furnitures: ", "Services: "),round(100 * count/sum(count), 2), "%")
+pie(count, labels = pie_labels,col = color, density = 50, angle = 45)
+```
+
+Similarly, the type of purchasers corresponds to:`
+```{r, echo=FALSE, cache=TRUE}
+library(DT)
+library(tidyverse)
+
+#datatable(table(TED$ISO_COUNTRY_CODE, TED$YEAR), colnames = c("Country code", "Year", "Nb of Contracts"))
+table_2<-as.data.frame(table(TED$CAE_TYPE))
+table_2 %>%
+  datatable(extensions = 'Buttons',
+            options = list(dom = 'Blfrtip',
+                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                           lengthMenu = list(c(10,25,50,-1),
+                                             c(10,25,50,"All"))), colnames = c("CAE type",  "Nb of Contracts"))
+```
+with:
+  
+  |CAE Code |CAE Type|
+|:--------:|:----------|
+ | 1 |  Ministry or any other national or federal authority, including their regional of local subdivisions|
+|3 |Regional or local authority|
+|4 |Water, energy, transport and telecommunications sectors|
+|5 |European Union institution/agency|
+|5A |other international organisation|
+|6 |Body governed by public law|
+|8 |Other|
+|N |National or federal Agency / Office|
+|R |Regional or local Agency / Office|
+|Z |Not specified|
