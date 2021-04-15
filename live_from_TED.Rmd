@@ -13,7 +13,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set( warning = TRUE,  message = FALSE, cache.lazy = FALSE)
+knitr::opts_chunk$set( warning = FALSE,  message = FALSE, cache.lazy = FALSE)
 
 ```
 
@@ -173,7 +173,7 @@ for(i in 1:10){mean_envir[i]<- mean(TEDFR[which(TEDFR$YEAR==i+2009),]$ENVIR,na.r
 years<-c()
 for(i in 1:10){years[i]<-i+2009}
 ```
-```{r}
+```{r, echo=FALSE}
 plot(years[1:10],mean_envir[1:10],type = "b", main = "% of envir. clauses", xlab = "years",ylab="")
 ```
 
@@ -189,12 +189,23 @@ TEDFR$LOCAL<-ifelse(str_sub(TEDFR$CAE_POSTAL_CODE, 1, 2)==str_sub(TEDFR$WIN_POST
 
 ```{r, echo=FALSE}
 table(TEDFR$LOCAL, TEDFR$CAE_TYPE)
-TC <- table(TEDFR$LOCAL, TEDFR$TYPE_OF_CONTRACT)
-    
+TC <- table(TEDFR$LOCAL, TEDFR$CAE_TYPE)
 ```
-Of course, it varies a lot depending on the type of the contract :
+```{r}
+summary(TC) 
+round(TC[2]/colSums(TC),2)
+```
 
-`r round(TC[2]/colSums(TC),2)`
+
+Of course, it varies also a lot depending on the type of the contract :
+
+```{r, echo=FALSE}
+TC2 <- table(TEDFR$LOCAL, TEDFR$TYPE_OF_CONTRACT)
+```
+```{r}
+summary(TC2)
+round(TC2[2]/colSums(TC2),2)
+```
 
 
 

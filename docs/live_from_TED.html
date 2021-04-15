@@ -535,7 +535,6 @@ TEDFR&lt;-TEDFR[which(str_detect(TEDFR$WIN_NAME, &quot;sans suite&quot;)==FALSE)
 <p>In order to infer the existence of environmental clauses as specific evaluation criteria, we create a specific variable that take value 1 if environmental concerns appear in the award notice, 0 otherwise. The notice is written in French, such that we consider a environmental concern if we can detect string like “développement durable”, “environnement” (for environnement, environementAL a.s.o), “écologi” (for écologiQUE, écologiE) and “RSE” (Social and Environmental Responsability).</p>
 <p>We observe 10.55 % of contracts with environmental clauses.</p>
 <p>In order to check that this method makes it possible, over the period, to identify in a relevant way the real presence of environmental clauses in public procurement contracts, one can observe the evolution of frequency over time.</p>
-<pre class="r"><code>plot(years[1:10],mean_envir[1:10],type = &quot;b&quot;, main = &quot;% of envir. clauses&quot;, xlab = &quot;years&quot;,ylab=&quot;&quot;)</code></pre>
 <p><img src="live_from_TED_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 </div>
 <div id="local-buying" class="section level2">
@@ -546,8 +545,23 @@ TEDFR&lt;-TEDFR[which(str_detect(TEDFR$WIN_NAME, &quot;sans suite&quot;)==FALSE)
 ##          1      3      4      5     5A      6      8      N      R      Z
 ##   0  49287 189665  33650    285    383 142600 203333   6316   8861 118573
 ##   1  16019 162150   9896    132     98  63567  80548   2233   6902  61519</code></pre>
-<p>Of course, it varies a lot depending on the type of the contract :</p>
-<p>0.39, 0.37, 0.73</p>
+<pre class="r"><code>summary(TC) </code></pre>
+<pre><code>## Number of cases in table: 1156017 
+## Number of factors: 2 
+## Test for independence of all factors:
+##  Chisq = 33085, df = 9, p-value = 0</code></pre>
+<pre class="r"><code>round(TC[2]/colSums(TC),2)</code></pre>
+<pre><code>##     1     3     4     5    5A     6     8     N     R     Z 
+##  0.25  0.05  0.37 38.41 33.30  0.08  0.06  1.87  1.02  0.09</code></pre>
+<p>Of course, it varies also a lot depending on the type of the contract :</p>
+<pre class="r"><code>summary(TC2)</code></pre>
+<pre><code>## Number of cases in table: 1156017 
+## Number of factors: 2 
+## Test for independence of all factors:
+##  Chisq = 94973, df = 2, p-value = 0</code></pre>
+<pre class="r"><code>round(TC2[2]/colSums(TC2),2)</code></pre>
+<pre><code>##    S    U    W 
+## 0.39 0.37 0.73</code></pre>
 </div>
 </div>
 
