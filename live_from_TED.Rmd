@@ -13,9 +13,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache = TRUE, warning = TRUE,  message = FALSE, cache.lazy = FALSE)
-
-#knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+knitr::opts_chunk$set( warning = TRUE,  message = FALSE, cache.lazy = FALSE)
 
 ```
 
@@ -70,9 +68,9 @@ TED<- read.csv(TED_destfile)
 
 # Some data to work up the appetite!
 
-The database represents `r length(TED$ID_NOTICE_CAN)` contrats awarded between 2010 and 2019. Here is the number of contracts by buyers country and by year :
+The database represents `r length(TED$ID_NOTICE_CAN)` contracts awarded between 2010 and 2019. Here is the number of contracts by buyers country and by year :
 
-```{r echo=FALSE,  cache=TRUE}
+```{r, echo=FALSE,  cache=TRUE}
 library(DT)
 library(tidyverse)
 
@@ -88,7 +86,7 @@ table_1 %>%
 
 France (as well as Poland) accounts for a large share of the data available under TED.
 
-```{r echo=FALSE,  cache=TRUE}
+```{r, echo=FALSE,  cache=TRUE}
 table_2<-table(TED[which(TED$ISO_COUNTRY_CODE=="FR" |TED$ISO_COUNTRY_CODE=="DE"|TED$ISO_COUNTRY_CODE=="IT"|TED$ISO_COUNTRY_CODE=="UK"|TED$ISO_COUNTRY_CODE=="PL"),]$YEAR, TED[which(TED$ISO_COUNTRY_CODE=="FR" |TED$ISO_COUNTRY_CODE=="DE"|TED$ISO_COUNTRY_CODE=="IT"|TED$ISO_COUNTRY_CODE=="UK"|TED$ISO_COUNTRY_CODE=="PL"),]$ISO_COUNTRY_CODE)
 barplot(table_2, legend.text = TRUE, main="cumulative nb of contracts", ylab="Nb", xlab="Country")
 ```
@@ -133,3 +131,71 @@ with:
 |N |National or federal Agency / Office|
 |R |Regional or local Agency / Office|
 |Z |Not specified|
+
+# Let us focus on French contracts!
+```{r french, echo=FALSE, cache=TRUE}
+TEDFR <- TED[which(TED$ISO_COUNTRY_CODE=="FR"),]
+rm(TED)
+rm(table_1)
+rm(table_2)
+```
+We've got `r length(TEDFR$ID_NOTICE_CAN)` contracts in the French Database.
+```{r, echo=FALSE, cache=TRUE}
+table(TEDFR$YEAR)->table_1
+barplot(table_1, legend.text = "Nb of contracts by year")
+```
+# Manipulation of the database
+
+In order to focus on effective awarded contracts, we don't consider raws of the database without any name for the selected supplier. Similarly, sometimes, the award notice reflects an unsuccessful call for tenders. In order to suppress the corresponding lines, it should be noticed that in the database, the *WIN_NAME* presents terms like "infructueux" or "sans suite". We now reduce our attention to the successful call for tenders
+
+```{r}
+TEDFR<-TEDFR[which(TEDFR$WIN_NAME!=""),]
+TEDFR<-TEDFR[which(str_detect(TEDFR$WIN_NAME, "infructueux")==FALSE),]
+TEDFR<-TEDFR[which(str_detect(TEDFR$WIN_NAME, "sans suite")==FALSE),]
+```
+We've got now only `r length(TEDFR$ID_NOTICE_CAN)` contracts in the French Database.
+
+## environmental clauses
+In order to infer the existence of environmental clauses as specific evaluation criteria, we create a specific variable that take value 1 if environmental concerns appear in the award notice, 0 otherwise. The notice is written in French, such that we consider a environmental concern if we can detect string like "développement durable", "environnement" (for environnement, environementAL  a.s.o), "écologi" (for écologiQUE, écologiE) and "RSE" (Social and Environmental Responsability).
+
+```{r, echo=FALSE}
+TEDFR$ENVIR<-ifelse(str_detect(TEDFR$CRIT_CRITERIA, "développement durable")==TRUE|str_detect(TEDFR$CRIT_CRITERIA, "environnement")==TRUE  |str_detect(TEDFR$CRIT_CRITERIA, "écologi")==TRUE|str_detect(TEDFR$CRIT_CRITERIA, " RSE")==TRUE,1,0)
+```
+
+
+We observe `r round(mean(TEDFR$ENVIR, na.rm=TRUE)*100,2)` % of contracts with environmental clauses.
+
+In order to check that this method makes it possible, over the period, to identify in a relevant way the real presence of environmental clauses in public procurement contracts, one can observe the evolution of frequency over time.
+
+```{r, echo=FALSE}
+mean_envir<-c()
+for(i in 1:10){mean_envir[i]<- mean(TEDFR[which(TEDFR$YEAR==i+2009),]$ENVIR,na.rm=TRUE)}
+years<-c()
+for(i in 1:10){years[i]<-i+2009}
+```
+```{r}
+plot(years[1:10],mean_envir[1:10],type = "b", main = "% of envir. clauses", xlab = "years",ylab="")
+```
+
+
+## local buying
+
+We create a first, very rough indicator of spatial proximity between buyer and supplier. In France, the first two digits of the postal code refer to the department. `LOCAL` takes value 1 if the public purchaser selects a supplier in this own department, 0 otherwise.
+
+```{r, echo=FALSE}
+TEDFR$LOCAL<-ifelse(str_sub(TEDFR$CAE_POSTAL_CODE, 1, 2)==str_sub(TEDFR$WIN_POSTAL_CODE, 1, 2),1,0)
+```
+`r round(mean(TEDFR$LOCAL, na.rm=TRUE)*100,2)` % of public purchasing is made inside the same department.
+
+```{r, echo=FALSE}
+table(TEDFR$LOCAL, TEDFR$CAE_TYPE)
+TC <- table(TEDFR$LOCAL, TEDFR$TYPE_OF_CONTRACT)
+    
+```
+Of course, it varies a lot depending on the type of the contract :
+
+`r round(TC[2]/colSums(TC),2)`
+
+
+
+
