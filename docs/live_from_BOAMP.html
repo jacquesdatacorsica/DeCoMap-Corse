@@ -9,12 +9,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Pierre-Henri Morand" />
 
 
 <title>Live from BOAMP</title>
 
 <script src="site_libs/header-attrs-2.6/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -26,6 +27,23 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.17/datatables.js"></script>
+<link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="site_libs/jszip-1.10.20/jszip.min.js"></script>
+<script src="site_libs/pdfmake-1.10.20/pdfmake.js"></script>
+<script src="site_libs/pdfmake-1.10.20/vfs_fonts.js"></script>
+<link href="site_libs/dt-ext-buttons-1.10.20/css/buttons.dataTables.min.css" rel="stylesheet" />
+<script src="site_libs/dt-ext-buttons-1.10.20/js/dataTables.buttons.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.10.20/js/buttons.flash.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.10.20/js/buttons.html5.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.10.20/js/buttons.colVis.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.10.20/js/buttons.print.min.js"></script>
+<link href="site_libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -389,18 +407,163 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Live from BOAMP</h1>
+<h4 class="author">Pierre-Henri Morand</h4>
+<h4 class="date">date: 2021-04-29</h4>
 
 </div>
 
 
-<div id="the-boamp-in-a-nushell" class="section level1">
-<h1>The BOAMP in a nushell</h1>
+<div id="présentation-de-la-base-de-donnée" class="section level1">
+<h1>Présentation de la base de donnée</h1>
+<p>Contrairement à la base TED, structurée par les services de l’UE en un fichier CSV unique, les données BOAMP prennent la forme de fichiers (XML ou JSON) propre à chaque avis déposé au Bulletin Officiel des Annonces des Marchés Publics. Un avis d’attribution correspond à un fichier. Ce qui signifie que chaque fichier correspond potentiellement à plusieurs lots, qui auront pour tout ou partie été attribués, chaque lot pouvant de surcroît être attribué à plus d’une entreprise.</p>
+<p>Le code source nécessaire à l’obtention de notre base est disponible ici.</p>
+<p>Afin de structurer ces données en une dataframe utilisable pour des traitements statistiques, un travail de récupération, structuration, nettoyage préalable est nécessaire. À l’issue de ce dernier, on obtient un tableau qui ressemble à cela :</p>
+<div id="htmlwidget-befce4e972183b02b13b" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-befce4e972183b02b13b">{"x":{"filter":"none","extensions":["Buttons"],"data":[["16-94814","17-124275","18-116367","18-116367","18-116367","18-116367","18-116367","18-116367","18-116367","18-116367","18-116367","18-116367","18-116367","18-134402","18-165119","18-165119","18-165119","18-165119","19-109359","19-109490","19-109490","19-109992","19-109992","19-109992","19-109992","19-109992","19-109992","19-109992","19-109992","19-109992","19-110063","19-113900","19-113900","19-113900","19-114272","19-121843","19-125175","19-125175","19-125455","19-127292","19-127292","19-127292","19-127292","19-127292","19-127292","19-127386","19-129797","19-137277","19-138853","19-144706"],["ALCION/CITEOS Ingénierie Méditerranée","VIENNE MEDICAL","GIDEF SARL ","Association ab stratégie","Flore alternance","Association ab stratégie","Fotramege","Sarl ris'k","Mic formation","Mic formation","Mic formation","Caraïbes conseil formation (CARACOF)","Carïbes conseils formation (CARACOF)","ENEDIS","MARKET ONE","Market One ","CARAIB EDIPRINT (IMPRIMERIE ANTILLAISE)","OPEN MEDIA","L'ATELIERS DES COMPAGNONS","SEQUOIA","ETC AUDIOVISUEL","SARL DENJEAN","SOPREMA ENTREPRISES","SOTERLY","EIFFAGE CONSTRUCTION RHONE LOIRE","Rolando Poisson","Alliance Ecoconstruction","Groupement Etbs Denjean et ERTCM Industries","SARL Menuiserie Genevrier","PERRET SARL","SARL BVL ARCHITECTURE","A.D.T INTERNATIONAL","A.D.T INTERNATIONAL","A.D.T INTERNATIONAL","SBM TOSHIBA","CENTRE INTERNATIONAL DISTRIBUTION (CID)","CORRE SARL","RUNEO","EPIC SNCF MOBILITES","LA CROIX SIGNALISATION","INGENIA","SAR","SPME","COLAS","UNIVERS'EL","SEMADER","ENEDIS","CST  Commission supérieure technique de limage et du son","BOURBOUZE ET GRAINDORGE","SOC TAMO"],[null,"1 rue Louis Juttet",null,null,"Zi jarry","Route de gondeau","Les hauts de Californie espace dd",null,"Bât E4 - 2ème étage","Bât e4 2ème étage","Bât e4 - 2ème étage","Bât 3 - 1er étage","Bât 3 - 1er étage ","174, avenue de la République","30, rue neuve",null,"Bois quarré","Centre d'affaires agora - Zac de l'étang z'abricot","25, avenue Michelet",null,null,"11 Route d'Yzeron","3, rue Louis Lachenal - BP 223","Rue des Coquelicots","3, rue Hrant Dink","3, rue Raspail","8, rue Emile Zola","11 Route d'Yzeron","Avenue Benoît Fourneyron - Parc Beaunier","72 Avenue du Progrès","66 rue de Sèvres",null,null,null,null,"216, Route de Bayonne CS 17607",null,null,"9 rue Jean-Philippe Rameau",null,"5 Rue du Marais","103-105 Rue des Fontanots","7 Route de l'Ile Saint Julien","2 Impasse des Petits Marais","153 Rue André Bisiaux","Actiparc des Sables - 52 route des Sables - CS 21 008",null,"22/24 avenue de Saint-Ouen ",null,"44 route de la sirole"],["Marseille","Champagne au Mont d'Or","Fort de france","Lamentin","Baie-mahau","Lamentin","Lamentin","Fort de france","Fort de france ","Fort de france","Lamentin","Sainte-marie","Sainte-marie","La Madeleine","TROIS-ILETS","TROIS-ILETS","LAMENTIN","FORT DE FRANCE","Saint ouen","Epone","Ivry sur seine","Saint Martin en Haut","GENAC CEDEX","Mions","LYON","Saint Fons","DECINES","Saint Martin en Haut","ANDREZIEUX BOUTHEON","Chassieu","PARIS","CHATEAUNEUF LES MARTIGUES","CHATEAUNEUF LES MARTIGUES","CHATEAUNEUF LES MARTIGUES","Le Lamentin","TOULOUSE CEDEX 3","TAMPON","Saint-Denis","Saint-Denis","Saint Herblain","Montreuil-sous-bois","Nanterre","Bonneuil sur Marne","Gennevilliers","Maxeville","Etang-Salé","LAVAL","PARIS","NANTES","NICE"],["13015","69410","972","97232","97122","97232","97232","97202","97200","97200","97200","97230","97230","59110","97228","97228","97232","97200","93400",null,null,"69850","69744","69780","69285","69190","69150","69850","42160","69680","75007","13220","13220","13220",null,"31076",null,null,"93200","44801","93100","92022","94380","92230","54320","97424",null,"75018",null,"06100"],["FRL",null,"FRY20","FRY20","FRY1","FRY20","FRY20","FRY20","FRY20","FRY20","FRY20","FRY20","FRY20","FRE11","FRY20","FRY20","FRY20","FRY20",null,"FR","FR","FRK26","FRK26","FRK26","FRK26","FRK26","FRK26","FRK26","FRK26","FRK26","FR","FR","FR","FR","FRY20","FR","FRY4","FRY4","FR106","FRG01","FR106","FR105","FR107","FR105","FRF3","FRY40","FRG03","FR101","FRG0","FRL03"],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],["34993000",null,"80530000","80530000","80530000","80530000","80530000","80530000","80530000","80530000","80530000","80530000","80530000","65300000","79800000","79800000","79800000","79800000",null,"45212313","32322000","45112500","45262311","45261100","45261420","45421100","45261220","45262650","45223110","45421000","71200000","79530000","79530000","79530000","30121100","22200000","45500000","45500000","60200000","34992000","34928400","34922000","44113320","44113320","34927100","45111290","65310000","71630000","71000000","33100000"],["Ville de Grimaud","CENTRE HOSPITALIER REG DE MARSEILLE","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","Commune d'Hautmont","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","COLLECTIVITE TERRITORIALE MARTINIQUE","COMSOPGN - COSIL","C.C de la Grande Vallée de la Marne","C.C de la Grande Vallée de la Marne","Métropole de Lyon","Métropole de Lyon","Métropole de Lyon","Métropole de Lyon","Métropole de Lyon","Métropole de Lyon","Métropole de Lyon","Métropole de Lyon","Métropole de Lyon","COMMUNAUTE COMMUNES HUISNE SARTHOISE","Tunnel Euralpin Lyon Turin SAS","Tunnel Euralpin Lyon Turin SAS","Tunnel Euralpin Lyon Turin SAS","CHU de Martinique","COLLECTIVITE TERRITORIALE MARTINIQUE","Commune du Tampon","Commune du Tampon","Ville de Paris","Mairie d'Alfortville","Mairie d'Alfortville","Mairie d'Alfortville","Mairie d'Alfortville","Mairie d'Alfortville","Mairie d'Alfortville","Commune de Saint Leu","TERRITOIRE D'ENERGIE MAYENNE","Centre national du cinéma","CIF COOPERATIVE","METROPOLE D AIX MARSEILLE PROVENCE"],["rue de la mairie","Direction des Achats80 rue Brochier","Rue Gaston Defferre CS 30137","Rue Gaston Defferre CS 30137","Rue Gaston Defferre CS 30137","Rue Gaston Defferre CS 30137","Rue Gaston Defferre CS 30137","Rue Gaston Defferre CS 30137","Rue Gaston Defferre CS 30137","Rue Gaston Defferre CS 30137","Rue Gaston Defferre CS 30137","Rue Gaston Defferre CS 30137","Rue Gaston Defferre CS 30137","Place Charles de Gaulle","rue Gaston Defferre - cs 30137","rue Gaston Defferre - cs 30137","rue Gaston Defferre - cs 30137","rue Gaston Defferre - cs 30137","4 avenue Busteau","Place Henri Martin","Place Henri Martin","Délégation générale aux RessourcesDirection du Patrimoine et des Moyens GénérauxUnité Procédure, achats, marchés20 rue du LacCS 33569","Délégation générale aux RessourcesDirection du Patrimoine et des Moyens GénérauxUnité Procédure, achats, marchés20 rue du LacCS 33569","Délégation générale aux RessourcesDirection du Patrimoine et des Moyens GénérauxUnité Procédure, achats, marchés20 rue du LacCS 33569","Délégation générale aux RessourcesDirection du Patrimoine et des Moyens GénérauxUnité Procédure, achats, marchés20 rue du LacCS 33569","Délégation générale aux RessourcesDirection du Patrimoine et des Moyens GénérauxUnité Procédure, achats, marchés20 rue du LacCS 33569","Délégation générale aux RessourcesDirection du Patrimoine et des Moyens GénérauxUnité Procédure, achats, marchés20 rue du LacCS 33569","Délégation générale aux RessourcesDirection du Patrimoine et des Moyens GénérauxUnité Procédure, achats, marchés20 rue du LacCS 33569","Délégation générale aux RessourcesDirection du Patrimoine et des Moyens GénérauxUnité Procédure, achats, marchés20 rue du LacCS 33569","Délégation générale aux RessourcesDirection du Patrimoine et des Moyens GénérauxUnité Procédure, achats, marchés20 rue du LacCS 33569","25 rue Jean Courtois - BP 50061","Savoie Technolac - Bâtiment \"Homère\" - 13 allée du Lac de Constance - CS 90281","Savoie Technolac - Bâtiment \"Homère\" - 13 allée du Lac de Constance - CS 90281","Savoie Technolac - Bâtiment \"Homère\" - 13 allée du Lac de Constance - CS 90281","CS 90632 - Département Achats","rue Gaston Defferre CS 30137","256, Rue Hubert Delisle","256, Rue Hubert Delisle","Direction des Finances et des Achats - Sous-direction des Achats CSP 2 - 7 avenue de la Porte d'Ivry","Place François MITTERRAND","Place François MITTERRAND","Place François MITTERRAND","Place François MITTERRAND","Place François MITTERRAND","Place François MITTERRAND","58, rue du Général Lambert","Parc Technopolis Rue Louis de Broglie","291 boulevard Raspail","10 RUE DE BEL AIR CS 53205","58 bd Charles Livon"],["83310","13005","97201","97201","97201","97201","97201","97201","97201","97201","97201","97201","97201","59330","97201","97201","97201","97201","94700","51160","51160","69505","69505","69505","69505","69505","69505","69505","69505","69505","72403","73375","73375","73375","97261","97200","97430","97430","75013","94142","94142","94142","94142","94142","94142","97436",null,"75014","44032","13007"],["GRIMAUD","Marseille","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","HAUTMONT","Fort-de-france","Fort-de-france","Fort-de-france","Fort-de-france","Maisons-alfort","AY CHAMPAGNE","AY CHAMPAGNE","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","LA FERTE BERNARD","Le Bourget du Lac","Le Bourget du Lac","Le Bourget du Lac","Fort-de-France Cedex","Fort-de-france","LE TAMPON","LE TAMPON","Paris","Alfortville cedex","Alfortville cedex","Alfortville cedex","Alfortville cedex","Alfortville cedex","Alfortville cedex","Saint-Leu","CHANGE","Paris","NANTES CEDEX 1","Marseille"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>id<\/th>\n      <th>suppl_denomination<\/th>\n      <th>suppl_adresse<\/th>\n      <th>suppl_ville<\/th>\n      <th>suppl_cp<\/th>\n      <th>suppl_codenuts<\/th>\n      <th>suppl_nboffrerecu<\/th>\n      <th>lot_cpv<\/th>\n      <th>denomination_ach<\/th>\n      <th>adresse_ach<\/th>\n      <th>codepostal_ach<\/th>\n      <th>ville_ach<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf","print"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-9c0414fb2cdaeb1645db" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9c0414fb2cdaeb1645db">{"x":{"filter":"none","extensions":["Buttons"],"data":[["16-94814","17-124275","18-116367","18-116367","18-116367","18-116367","18-116367","18-116367","18-116367","18-116367","18-116367","18-116367","18-116367","18-134402","18-165119","18-165119","18-165119","18-165119","19-109359","19-109490","19-109490","19-109992","19-109992","19-109992","19-109992","19-109992","19-109992","19-109992","19-109992","19-109992","19-110063","19-113900","19-113900","19-113900","19-114272","19-121843","19-125175","19-125175","19-125455","19-127292","19-127292","19-127292","19-127292","19-127292","19-127292","19-127386","19-129797","19-137277","19-138853","19-144706"],["GRIMAUD","Marseille","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","FORT-DE-FRANCE","HAUTMONT","Fort-de-france","Fort-de-france","Fort-de-france","Fort-de-france","Maisons-alfort","AY CHAMPAGNE","AY CHAMPAGNE","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","Lyon Cedex 03","LA FERTE BERNARD","Le Bourget du Lac","Le Bourget du Lac","Le Bourget du Lac","Fort-de-France Cedex","Fort-de-france","LE TAMPON","LE TAMPON","Paris","Alfortville cedex","Alfortville cedex","Alfortville cedex","Alfortville cedex","Alfortville cedex","Alfortville cedex","Saint-Leu","CHANGE","Paris","NANTES CEDEX 1","Marseille"],["FR",null,"FRY20","FRY20","FRY20","FRY20","FRY20","FRY20","FRY20","FRY20","FRY20","FRY20","FRY20","FRE11","FRY20","FRY20","FRY20","FRY20",null,"FR","FR","FRK26","FRK26","FRK26","FRK26","FRK26","FRK26","FRK26","FRK26","FRK26","FRG04","FRK27","FRK27","FRK27","FRY2","FR","FRY4","FRY4","FR101","FR107","FR107","FR107","FR107","FR107","FR107","FRY40","FRG03","FR101","FR","FRL04"],["autoriteregional",null,"autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autre","minautoritenationale","minautoritenationale","minautoritenationale","minautoritenationale",null,"autoriteregional","autoriteregional","autre","autre","autre","autre","autre","autre","autre","autre","autre","autoriteregional",null,null,null,"orgdroitpublic","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autoriteregional","autre",null,"orgdroitpublic","autre","autre"],[null,"autre",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"etat",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],["1",null,"16","16","16","16","16","16","16","16","16","16","16","1","5","5","5","5",null,"6","6","9","9","9","9","9","9","9","9","9","1","3","3","3","2","3","3","3","1","6","6","6","6","6","6","1","1","1","1","4"],["ouvert","negocie","ouvert","ouvert","ouvert","ouvert","ouvert","ouvert","ouvert","ouvert","ouvert","ouvert","ouvert",null,"ouvert","ouvert","ouvert","ouvert","restreint","negocie","negocie","ouvert","ouvert","ouvert","ouvert","ouvert","ouvert","ouvert","ouvert","ouvert","restreint","negocie","negocie","negocie","ouvert","ouvert","ouvert","ouvert","negocie","ouvert","ouvert","ouvert","ouvert","ouvert","ouvert","negocie",null,"ouvert","ouvert","ouvert"],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,null,null,1,1,1,1,1,1,1,0,1,0,0,0,0,null,0,null,null,0,0,0,0,1,0,0,1,null,1,null,0],[0,null,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,null,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,0,0,0,0,1,0,0,1,1,1,0,0],[0,null,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,null,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,1,1,1,1,0,1,1,1,0,1],[0,null,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,null,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,1,1,1,1,0,1,1,1,0,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>id<\/th>\n      <th>ville_ach<\/th>\n      <th>adjudicateurnuts<\/th>\n      <th>typepouvoiradjudicateur<\/th>\n      <th>typeorganisme<\/th>\n      <th>nbr_lots<\/th>\n      <th>typeprocedure<\/th>\n      <th>sociaux<\/th>\n      <th>envir<\/th>\n      <th>local_dep<\/th>\n      <th>local_nuts<\/th>\n      <th>local_nuts4<\/th>\n      <th>local_nuts3<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Blfrtip","buttons":["copy","csv","excel","pdf","print"],"lengthMenu":[[10,25,50,-1],["10","25","50","All"]],"columnDefs":[{"className":"dt-right","targets":[7,8,9,10,11,12]}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<p>Cette base inclue des variables propre au traitement - sociaux (0/1) en fonction de la présence ou non de clause sociale dans le marché. - envir (0/1) en fonction de la présence ou non de clause environnementale dans le marché (attention, comme pour la précédente, la présence de clause s’entend à l’échelle du marché et donc pas nécessairement du lot considéré, ces informations n’étant pas disponibles dans les données BOAMP) - local_dep (0/1) indique si un marché est conclu auprès d’une entreprise localisée dans le même département que l’acheteur - à différentes échelles, on retrouve la même logique pour les indicateurs local_NUTS, local_NUTS4 et local_NUTS3 (NUTS à 5 caractères, 4 caractères et 3 caractères, ce qui correspond à 3 niveaux de proximité géographique).</p>
 </div>
-<div id="some-statistics" class="section level1">
-<h1>Some statistics</h1>
-</div>
-<div id="boamp-during-2020" class="section level1">
-<h1>BOAMP during 2020</h1>
+<div id="analyse-des-données-2020" class="section level1">
+<h1>Analyse des données 2020</h1>
+<p>Sur l’année 2020, la base permet d’identifier 69723 contrats entre acheteurs publics et fournisseurs. Parmis eux, 13.2 % intègrent des clauses environnementales, contre 6.33 % de clauses sociales.</p>
+<pre class="r"><code>mydata&lt;-aggregate(BOAMP_df[which(str_length(BOAMP_df$adjudicateurnuts)==5),19], by=list(BOAMP_df[which(str_length(BOAMP_df$adjudicateurnuts)==5),]$adjudicateurnuts), FUN=mean);mydata</code></pre>
+<pre><code>##     Group.1           x
+## 1     DE712 0.000000000
+## 2     ES511 0.000000000
+## 3     FR101 0.147556846
+## 4     FR102 0.171779141
+## 5     FR103 0.145631068
+## 6     FR104 0.163822526
+## 7     FR105 0.217252396
+## 8     FR106 0.201349831
+## 9     FR107 0.201219512
+## 10    FR108 0.156043956
+## 11    FR212 0.000000000
+## 12    FR222 0.120000000
+## 13    FR232 0.000000000
+## 14    FR244 0.000000000
+## 15    FR246 0.000000000
+## 16    FR252 0.000000000
+## 17    FR301 0.089552239
+## 18    FR302 0.000000000
+## 19    FR414 0.000000000
+## 20    FR421 1.000000000
+## 21    FR431 0.000000000
+## 22    FR433 1.000000000
+## 23    FR511 0.000000000
+## 24    FR512 0.000000000
+## 25    FR522 0.000000000
+## 26    FR523 0.000000000
+## 27    FR532 0.000000000
+## 28    FR534 0.000000000
+## 29    FR613 0.000000000
+## 30    FR623 0.000000000
+## 31    FR711 0.000000000
+## 32    FR712 0.000000000
+## 33    FR714 1.000000000
+## 34    FR716 0.000000000
+## 35    FR813 0.000000000
+## 36    FR823 1.000000000
+## 37    FR824 0.500000000
+## 38    FR825 0.000000000
+## 39    FR940 0.000000000
+## 40    FRB01 0.126213592
+## 41    FRB02 0.068807339
+## 42    FRB03 0.115384615
+## 43    FRB04 0.000000000
+## 44    FRB05 0.148437500
+## 45    FRB06 0.222680412
+## 46    FRC11 0.377224199
+## 47    FRC12 0.232558140
+## 48    FRC13 0.292875989
+## 49    FRC14 0.048000000
+## 50    FRC21 0.072815534
+## 51    FRC22 0.080645161
+## 52    FRC23 0.078431373
+## 53    FRC24 0.291970803
+## 54    FRD11 0.036511156
+## 55    FRD12 0.106583072
+## 56    FRD13 0.000000000
+## 57    FRD21 0.225210084
+## 58    FRD22 0.170533643
+## 59    FRE11 0.135718342
+## 60    FRE12 0.140243902
+## 61    FRE21 0.033898305
+## 62    FRE22 0.174008811
+## 63    FRE23 0.215311005
+## 64    FRF11 0.176949942
+## 65    FRF12 0.072429907
+## 66    FRF21 0.017391304
+## 67    FRF22 0.006535948
+## 68    FRF23 0.133333333
+## 69    FRF24 0.024096386
+## 70    FRF31 0.076923077
+## 71    FRF32 0.722943723
+## 72    FRF33 0.268656716
+## 73    FRF34 0.035000000
+## 74    FRG01 0.067388688
+## 75    FRG02 0.099290780
+## 76    FRG03 0.015151515
+## 77    FRG04 0.082706767
+## 78    FRG05 0.164728682
+## 79    FRH01 0.068852459
+## 80    FRH02 0.254166667
+## 81    FRH03 0.265758092
+## 82    FRH04 0.074074074
+## 83    FRI11 0.009756098
+## 84    FRI12 0.132920110
+## 85    FRI13 0.126126126
+## 86    FRI14 0.179347826
+## 87    FRI15 0.067114094
+## 88    FRI21 0.051020408
+## 89    FRI22 0.000000000
+## 90    FRI23 0.098901099
+## 91    FRI31 0.016806723
+## 92    FRI32 0.150485437
+## 93    FRI33 0.116591928
+## 94    FRI34 0.122562674
+## 95    FRJ11 0.000000000
+## 96    FRJ12 0.022160665
+## 97    FRJ13 0.051685393
+## 98    FRJ14 0.128712871
+## 99    FRJ15 0.224890830
+## 100   FRJ21 0.054726368
+## 101   FRJ22 0.005494505
+## 102   FRJ23 0.166086957
+## 103   FRJ24 0.000000000
+## 104   FRJ25 0.008695652
+## 105   FRJ26 0.041152263
+## 106   FRJ27 0.232558140
+## 107   FRJ28 0.008810573
+## 108   FRK11 0.146496815
+## 109   FRK12 0.000000000
+## 110   FRK13 0.000000000
+## 111   FRK14 0.189781022
+## 112   FRK21 0.049833887
+## 113   FRK22 0.000000000
+## 114   FRK23 0.063909774
+## 115   FRK24 0.176678445
+## 116   FRK25 0.120287253
+## 117   FRK26 0.214689266
+## 118   FRK27 0.052464229
+## 119   FRK28 0.089193825
+## 120   FRL01 0.148148148
+## 121   FRL02 0.235294118
+## 122   FRL03 0.158106747
+## 123   FRL04 0.151724138
+## 124   FRL05 0.126666667
+## 125   FRL06 0.268398268
+## 126   FRM01 0.006535948
+## 127   FRM02 0.089820359
+## 128   FRY10 0.294642857
+## 129   FRY20 0.090047393
+## 130   FRY30 0.134146341
+## 131   FRY40 0.137853107
+## 132   FRY50 0.113043478
+## 133   FRZZZ 0.000000000</code></pre>
+<p>On peut également s’amuser à identifier les marchés attribués à des entreprises en dehors du territoire national :</p>
+<p><img src="live_from_BOAMP_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 </div>
 
 

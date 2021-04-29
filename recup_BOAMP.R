@@ -1,57 +1,10 @@
----
-title: "Live from BOAMP"
-author: "Pierre-Henri Morand"
-date: 'date: `r Sys.Date()`'
-output:
-  html_document:
-    toc: yes
-    toc_float: yes
-    collapsed: false
-    number_sections: false
-    toc_depth: 1
-    #code_folding: hide
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set( warning = FALSE,  message = FALSE, cache.lazy = FALSE)
-
-```
-
-
-# Présentation de la base de donnée
-
-Contrairement à la base TED, structurée par les services de l'UE en un fichier CSV unique, les données BOAMP prennent la forme de fichiers (XML ou JSON) propre à chaque avis déposé au Bulletin Officiel des Annonces des Marchés Publics. Un avis d'attribution correspond à un fichier. Ce qui signifie que chaque fichier correspond potentiellement à plusieurs lots, qui auront pour tout ou partie été attribués, chaque lot pouvant de surcroît être attribué à plus d'une entreprise.
-
-Le code source nécessaire à l'obtention de notre base est disponible ici.
-
-
-```{r, echo=FALSE}
-
-library(tidyverse)
-library(banR)
+library(httr)
 library(jsonlite)
-library(magrittr)
-library(data.tree)
+library(dplyr)
+library(stringr)
 library(geosphere)
 library(sf)
 library(cartography)
-library(stringr)
-library(httr)
-library(dplyr)
-library(stringr)
-
-#creating the data repository
-data_dir <- 'data'
-if (!dir.exists(data_dir)) {
-  dir.create(data_dir)
-}
-
-BOAMP_destfile <-  str_c(data_dir, "/BOAMP_df.Rda")
-if (!file.exists(BOAMP_destfile)) {
- 
-
-
-
 
 
 
@@ -279,83 +232,97 @@ table(str_sub(BOAMP_df$suppl_codenuts,1,2), str_sub(BOAMP_df$adjudicateurnuts,1,
 # ===============================
 
 
-saveRDS(BOAMP_df, file=BOAMP_destfile)
-}
+saveRDS(BOAMP_df, file="BOAMP_df.Rda")
+BOAMP_df<- readRDS(file="BOAMP_df.Rda")
 
-
-BOAMP_df<- readRDS(file=BOAMP_destfile)
-
-
-```
-
-Afin de structurer ces données en une dataframe utilisable pour des traitements statistiques, un travail de récupération, structuration, nettoyage préalable est nécessaire. À l'issue de ce dernier, on obtient un tableau qui ressemble à cela :
-
-
-```{r, echo=FALSE, cache=TRUE}
-library(DT)
-library(tidyverse)
-
-table<-BOAMP_df[1:50,c(1:12)]
-
-table%>%
-  datatable(extensions = 'Buttons',
-            options = list(dom = 'Blfrtip',
-                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                           lengthMenu = list(c(10,25,50,-1),
-                                             c(10,25,50,"All"))),rownames = FALSE)
-```
-```{r echo=FALSE, cache=TRUE}
-table<-BOAMP_df[1:50,c(1,12:23)]
-
-table%>%
-  datatable(extensions = 'Buttons',
-            options = list(dom = 'Blfrtip',
-                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                           lengthMenu = list(c(10,25,50,-1),
-                                             c(10,25,50,"All"))),rownames = FALSE)
-```
-
-Cette base inclue des variables propre au traitement
-- sociaux (0/1) en fonction de la présence ou non de clause sociale dans le marché.
-- envir (0/1) en fonction de la présence ou non de clause environnementale dans le marché (attention, comme pour la précédente, la présence de clause s'entend à
-l'échelle du marché et donc pas nécessairement du lot considéré, ces informations n'étant pas disponibles dans les données BOAMP)
-- local_dep (0/1) indique si un marché est conclu auprès d'une entreprise localisée dans le même département que l'acheteur
-- à différentes échelles, on retrouve la même logique pour les indicateurs local_NUTS, local_NUTS4 et local_NUTS3 (NUTS à 5 caractères, 4 caractères et 3 caractères, ce qui correspond à 3 niveaux de proximité géographique).
-
-
-# Analyse des données 2020
-
-Sur l'année 2020, la base permet d'identifier `r length(BOAMP_df$id)` contrats entre acheteurs publics et fournisseurs.
-Parmis eux, `r round(mean(BOAMP_df$envir, rm.na=TRUE)*100,2)` % intègrent des clauses environnementales, contre `r round(mean(BOAMP_df$sociaux, rm.na=TRUE)*100,2)` %  de clauses sociales.
-
-```{r}
-
-mydata<-aggregate(BOAMP_df[which(str_length(BOAMP_df$adjudicateurnuts)==5),19], by=list(BOAMP_df[which(str_length(BOAMP_df$adjudicateurnuts)==5),]$adjudicateurnuts), FUN=mean);mydata
-
-```
-
-
-
-On peut également s'amuser à identifier les marchés attribués à des entreprises en dehors du territoire national :
-
-```{r echo=FALSE}
-# Maps
+# Number of contracts for 2006
 
 data(nuts2006)
 library(sp)
 
 library(sf)
+data(France)
+ls()
 region<-as.data.frame(table(str_sub(BOAMP_df[which(str_sub(BOAMP_df$suppl_codenuts,1,2)!="FR"),]$suppl_codenuts,1,2)))
 names(region)[names(region) == 'Var1'] <- 'id'
 
 choroLayer(spdf = nuts0.spdf, df = region, var = "Freq", legend.pos = "topright", legend.title.txt = "Nb de contrats")
 # Titles, legend, sources
-#layoutLayer(title = "L'achat public à l'international",
- #           author = "carto : PH Morand",
-  #          sources = "https://www.data.gouv.fr/fr/datasets/api-boamp-beta/, 2021",
-   #         scale = NULL,
-    #        south = TRUE)
+layoutLayer(title = "L'achat public à l'international",
+            author = "carto : PH Morand",
+            sources = "https://www.data.gouv.fr/fr/datasets/api-boamp-beta/, 2021",
+            scale = NULL,
+            south = TRUE)
+plot(
+  st_geometry(nuts0.spdf), 
+  col = "lightblue4", 
+  border = "lightblue3", 
+  bg = "lightblue1"
+)
 
-```
+plot(nuts0.spdf)
+
+propSymbolsLayer(spdf = nuts0.spdf, df = region, var = "Nb de contrats")
+title("Number of contracts")
+
+# Titles, legend, sources
+layoutLayer(title = "Number of foreign contracts per country",
+            author = "PH Morand",
+            sources = "https://www.data.gouv.fr/fr/datasets/api-boamp-beta/, 2021",
+            scale = NULL,
+            south = TRUE)
+
+departement<-as.data.frame(table(df$nuts_ach))
+names(departement)[names(departement) == 'Var1'] <- 'id'
+choroLayer(spdf = nuts3.spdf, df = departement, var = "Freq")
+title("Number of contracts")
+
+layoutLayer(title = "Number of contracts per departement",
+            author = "PH Morand",
+            sources = "data.gouv.fr, 2021",
+            scale = NULL,
+            south = TRUE)
 
 
+
+
+# cartographie de flux
+
+plot(nuts0.spdf, border = NA, col = NA, bg = "#A6CAE0")
+plot(world.spdf, col  = "#E3DEBF", border=NA, add=TRUE)
+plot(nuts2.spdf, col = "#D1914D",border = "grey80", add=TRUE)
+
+
+df_flux<-as.data.frame(table(str_sub(BOAMP_df[which(str_sub(BOAMP_df$suppl_codenuts,1,2)!="FR"),]$suppl_codenuts,1,2)))
+df_flux$i <-"FR"
+colnames(df_flux)[1]<-"j"
+colnames(df_flux)[2]<-"fij"
+
+
+
+# Cartographie des liens
+
+
+
+# Données sur les jumelages
+head(df_flux)
+head(twincities)
+
+
+# Creation d'une couche de liens
+df_flux.spdf <- getLinkLayer(x = nuts1.spdf, df = df_flux)
+
+
+# Affichage des liens créés
+plot(df_flux.spdf, lwd = 0.2)
+
+
+gradLinkLayer(spdf = nuts0.spdf, df = df_flux,   #
+              spdfids = "i", spdfide = "j", dfids = "i", dfide = "j", 
+              var = "fij", 
+              breaks = c(2,5,15,20,30), 
+              lwd = c(0.1,1,4,10), 
+              col = "#92000090",
+              legend.pos = "right", legend.frame = TRUE,
+              legend.title.txt = "Number of Agreements\n(regional level)",
+              add = TRUE)
