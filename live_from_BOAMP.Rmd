@@ -22,10 +22,10 @@ knitr::opts_chunk$set( warning = FALSE,  message = FALSE, cache.lazy = FALSE)
 
 Contrairement à la base TED, structurée par les services de l'UE en un fichier CSV unique, les données BOAMP prennent la forme de fichiers (XML ou JSON) propre à chaque avis déposé au Bulletin Officiel des Annonces des Marchés Publics. Un avis d'attribution correspond à un fichier. Ce qui signifie que chaque fichier correspond potentiellement à plusieurs lots, qui auront pour tout ou partie été attribués, chaque lot pouvant de surcroît être attribué à plus d'une entreprise.
 
-Le code source nécessaire à l'obtention de notre base est disponible ici.
+Le code source nécessaire à l'obtention de notre base est disponible [ici](https://github.com/phmorand/DeCoMaP).
 
 
-```{r, echo=FALSE}
+```{r code download, echo=TRUE}
 
 library(tidyverse)
 library(banR)
@@ -39,6 +39,7 @@ library(stringr)
 library(httr)
 library(dplyr)
 library(stringr)
+library(DT)
 
 #creating the data repository
 data_dir <- 'data'
@@ -48,18 +49,10 @@ if (!dir.exists(data_dir)) {
 
 BOAMP_destfile <-  str_c(data_dir, "/BOAMP_df.Rda")
 if (!file.exists(BOAMP_destfile)) {
- 
-
-
-
-
-
 
 #============================================
 #==== First, GET the web id =================
 #============================================
-
-
 
 #================ useful for criterion request ===================
 space = "%20" # 1 space
@@ -70,7 +63,6 @@ less.than.sign = "%3C" # <
 greater.than.or.equal.to.sign = paste0(greater.than.sign,equal.sign) # >=
 less.than.or.equal.to.sign = paste0(less.than.sign,equal.sign) # <=
 # ==============================================
-
 
 url_start="http://api.dila.fr/opendata/api-boamp/annonces/search"
 
@@ -92,9 +84,9 @@ get_webid<-function(day_start, month_start, day_stop, month_stop){fromJSON(rawTo
                                                                                                       "?criterion=",
                                                                                                       "nature_cat", equal.sign, "attribution",
                                                                                                       space, "AND", space,
-                                                                                                      "dateparution", greater.than.or.equal.to.sign, "2020", slash.sign, month_start, slash.sign, day_start,
+                                                                                                      "dateparution", greater.than.or.equal.to.sign, "2020", slash.sign, month_start, slash.sign, day_start, # you can change the year just here
                                                                                                       space, "AND", space, 
-                                                                                                      "dateparution", less.than.or.equal.to.sign, "2020", slash.sign, month_stop, slash.sign, day_stop))$content))$item$value}
+                                                                                                      "dateparution", less.than.or.equal.to.sign, "2020", slash.sign, month_stop, slash.sign, day_stop))$content))$item$value} # you can change the year just here
 
 # ============= List of all the web id =================
 rm(list_webid)
@@ -105,7 +97,6 @@ for(t in 1:length(periods)-1){list_webid<-c(list_webid,get_webid(unlist(strsplit
 #=======================================================
 # =========GET the award notices based on the web id ===
 #=======================================================
-
 
 output.dir = "~/BOAMP-tender-data-2020"
 dir.create(output.dir, recursive=FALSE, showWarnings=FALSE)
@@ -156,8 +147,6 @@ for(i in 1:length(list_webid_unique)){test=make_df(i)
   sociaux[i]<-ifelse(is.null(test$gestion$indexation$criteressociauxenv$sociaux),0,1)
   envir[i]<-ifelse(is.null(test$gestion$indexation$criteressociauxenv$environnementaux),0,1)
   adjudicateurnuts[i]<-ifelse(is.null(test$donnees$identite$adjudicateurnuts), NA,test$donnees$identite$adjudicateurnuts)
-  #nbr_lots[i]<-ifelse(is.na(test$donnees$objet$lots),NA, tryCatch(nrow(as.data.frame(test$donnees$objet$lots$lot)), error = function(e) NA)
-  #nbr_lots[i]<-tryCatch(ifelse(is.na(test$donnees$objet$lots),NA,ifelse(nrow(as.data.frame(test$donnees$objet$lots$lot))==0,1,nrow(as.data.frame(test$donnees$objet$lots$lot)))), error = function(e) NA)
   tryCatch(nbr_lots[i]<-ifelse(is.na(test$donnees$objet$lots),NA,ifelse(nrow(as.data.frame(test$donnees$objet$lots$lot))==0,1,nrow(as.data.frame(test$donnees$objet$lots$lot)))), error = function(e) nbr_lots[i]<-1)
   
   typepouvoiradjudicateur[i]<-ifelse(is.null(test$donnees$typepouvoiradjudicateur),NA,
@@ -201,7 +190,6 @@ summary(df)
 # DATABASE RELATIVE TO SELECTED SUPPLIERS 
 ########################################
 
-
 suppl_denomination=c()
 suppl_adresse=c()
 suppl_cp=c()
@@ -238,20 +226,15 @@ for(i in 32536:length(list_webid_unique)){
 suppl_df = cbind(id, suppl_denomination,suppl_adresse,suppl_ville,suppl_cp,suppl_codenuts,suppl_nboffrerecu, lot_cpv)
 suppl_df<-as.data.frame(suppl_df)
 
-
-
 # ================================
 # JOIN DATABASES
 # ================================
 
 BOAMP_df<-left_join(suppl_df, df)
 
-
-
 # ========================
 # additionnal variables
 # ========================
-
 
 # suppress the un-allocated markets
 
@@ -268,33 +251,21 @@ BOAMP_df$local_nuts4 <-ifelse(str_sub(BOAMP_df$suppl_codenuts,1,4) ==str_sub(BOA
 BOAMP_df$local_nuts3 <-ifelse(str_sub(BOAMP_df$suppl_codenuts,1,3) ==str_sub(BOAMP_df$adjudicateurnuts,1,3),1,0)
 
 
-summary(BOAMP_df$local_dep)
-
-
-table(str_sub(BOAMP_df$suppl_codenuts,1,2), str_sub(BOAMP_df$adjudicateurnuts,1,2))[,4]
-
-
 # ==============================
 # GET THE DATA DIRECTLY FROM RDA
 # ===============================
 
-
 saveRDS(BOAMP_df, file=BOAMP_destfile)
 }
 
-
 BOAMP_df<- readRDS(file=BOAMP_destfile)
-
 
 ```
 
 Afin de structurer ces données en une dataframe utilisable pour des traitements statistiques, un travail de récupération, structuration, nettoyage préalable est nécessaire. À l'issue de ce dernier, on obtient un tableau qui ressemble à cela :
 
 
-```{r, echo=FALSE, cache=TRUE}
-library(DT)
-library(tidyverse)
-
+```{r table_illustration, echo=TRUE, cache=TRUE}
 table<-BOAMP_df[1:50,c(1:12)]
 
 table%>%
@@ -304,10 +275,10 @@ table%>%
                            lengthMenu = list(c(10,25,50,-1),
                                              c(10,25,50,"All"))),rownames = FALSE)
 ```
-```{r echo=FALSE, cache=TRUE}
-table<-BOAMP_df[1:50,c(1,12:23)]
+```{r table_illustration 2, echo=TRUE, cache=TRUE}
+table2<-BOAMP_df[1:50,c(1,12:23)]
 
-table%>%
+table2%>%
   datatable(extensions = 'Buttons',
             options = list(dom = 'Blfrtip',
                            buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
@@ -325,25 +296,36 @@ l'échelle du marché et donc pas nécessairement du lot considéré, ces inform
 
 # Analyse des données 2020
 
+
+```{r results1, echo=TRUE}
+summary(BOAMP_df$local_dep)
+
+table(str_sub(BOAMP_df$suppl_codenuts,1,2), str_sub(BOAMP_df$adjudicateurnuts,1,2))[,4]
+```
+
+
 Sur l'année 2020, la base permet d'identifier `r length(BOAMP_df$id)` contrats entre acheteurs publics et fournisseurs.
 Parmis eux, `r round(mean(BOAMP_df$envir, rm.na=TRUE)*100,2)` % intègrent des clauses environnementales, contre `r round(mean(BOAMP_df$sociaux, rm.na=TRUE)*100,2)` %  de clauses sociales.
 
-```{r}
+```{r results2, echo=TRUE}
+mydata<-aggregate(BOAMP_df[which(str_length(BOAMP_df$adjudicateurnuts)==5),19], by=list(BOAMP_df[which(str_length(BOAMP_df$adjudicateurnuts)==5),]$adjudicateurnuts), FUN=mean)
 
-mydata<-aggregate(BOAMP_df[which(str_length(BOAMP_df$adjudicateurnuts)==5),19], by=list(BOAMP_df[which(str_length(BOAMP_df$adjudicateurnuts)==5),]$adjudicateurnuts), FUN=mean);mydata
-
+mydata%>%
+  datatable(extensions = 'Buttons',
+            options = list(dom = 'Blfrtip',
+                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                           lengthMenu = list(c(10,25,50,-1),
+                                             c(10,25,50,"All"))),rownames = FALSE)
 ```
-
 
 
 On peut également s'amuser à identifier les marchés attribués à des entreprises en dehors du territoire national :
 
-```{r echo=FALSE}
+```{r maps1, echo=TRUE}
 # Maps
 
 data(nuts2006)
 library(sp)
-
 library(sf)
 region<-as.data.frame(table(str_sub(BOAMP_df[which(str_sub(BOAMP_df$suppl_codenuts,1,2)!="FR"),]$suppl_codenuts,1,2)))
 names(region)[names(region) == 'Var1'] <- 'id'
