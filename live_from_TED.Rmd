@@ -36,7 +36,7 @@ contracting bodies and sent as notices for publication to TED. Most of the varia
 The latest database can be downloaded directly [here](https://data.europa.eu/euodp/repository/ec/dg-grow/mapps/TED%202020/Export_OpenDataCAN_from2010to2019.csv)
 
 
-```{r data dwonloading, echo=FALSE, message=TRUE, warning=TRUE, cache=TRUE}
+```{r data dwonloading, echo=TRUE, message=FALSE, warning=TRUE, cache=TRUE}
 #importing useful library
 
 library(tidyverse)
@@ -70,7 +70,7 @@ TED<- read.csv(TED_destfile)
 
 The database represents `r length(TED$ID_NOTICE_CAN)` contracts awarded between 2010 and 2019. Here is the number of contracts by buyers country and by year :
 
-```{r, echo=FALSE,  cache=TRUE}
+```{r, echo=TRUE,  cache=TRUE}
 library(DT)
 library(tidyverse)
 
@@ -86,7 +86,7 @@ table_1 %>%
 
 France (as well as Poland) accounts for a large share of the data available under TED.
 
-```{r, echo=FALSE,  cache=TRUE}
+```{r, echo=TRUE,  cache=TRUE}
 table_2<-table(TED[which(TED$ISO_COUNTRY_CODE=="FR" |TED$ISO_COUNTRY_CODE=="DE"|TED$ISO_COUNTRY_CODE=="IT"|TED$ISO_COUNTRY_CODE=="UK"|TED$ISO_COUNTRY_CODE=="PL"),]$YEAR, TED[which(TED$ISO_COUNTRY_CODE=="FR" |TED$ISO_COUNTRY_CODE=="DE"|TED$ISO_COUNTRY_CODE=="IT"|TED$ISO_COUNTRY_CODE=="UK"|TED$ISO_COUNTRY_CODE=="PL"),]$ISO_COUNTRY_CODE)
 barplot(table_2, legend.text = TRUE, main="cumulative nb of contracts", ylab="Nb", xlab="Country")
 ```
@@ -94,7 +94,7 @@ barplot(table_2, legend.text = TRUE, main="cumulative nb of contracts", ylab="Nb
 
 The distribution of contracts by main categories gives us, for the entire database:
 
-```{r, echo=FALSE, cache=TRUE}
+```{r, echo=TRUE, cache=TRUE}
 library(RColorBrewer)
 count<-table(TED$TYPE_OF_CONTRACT)
 color <- brewer.pal(length(count), "Set2")
@@ -104,7 +104,7 @@ pie(count, labels = pie_labels,col = color, density = 50, angle = 45)
 ```
 
 Similarly, the type of purchasers corresponds to:`
-```{r, echo=FALSE, cache=TRUE}
+```{r, echo=TRUE, cache=TRUE}
 library(DT)
 library(tidyverse)
 
@@ -133,14 +133,14 @@ with:
 |Z |Not specified|
 
 # Let us focus on French contracts!
-```{r french, echo=FALSE, cache=TRUE}
+```{r french, echo=TRUE, cache=TRUE}
 TEDFR <- TED[which(TED$ISO_COUNTRY_CODE=="FR"),]
 rm(TED)
 rm(table_1)
 rm(table_2)
 ```
 We've got `r length(TEDFR$ID_NOTICE_CAN)` contracts in the French Database.
-```{r, echo=FALSE, cache=TRUE}
+```{r, echo=TRUE, cache=TRUE}
 table(TEDFR$YEAR)->table_1
 barplot(table_1, legend.text = "Nb of contracts by year")
 ```
@@ -167,13 +167,13 @@ We observe `r round(mean(TEDFR$ENVIR, na.rm=TRUE)*100,2)` % of contracts with en
 
 In order to check that this method makes it possible, over the period, to identify in a relevant way the real presence of environmental clauses in public procurement contracts, one can observe the evolution of frequency over time.
 
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 mean_envir<-c()
 for(i in 1:10){mean_envir[i]<- mean(TEDFR[which(TEDFR$YEAR==i+2009),]$ENVIR,na.rm=TRUE)}
 years<-c()
 for(i in 1:10){years[i]<-i+2009}
 ```
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 plot(years[1:10],mean_envir[1:10],type = "b", main = "% of envir. clauses", xlab = "years",ylab="")
 ```
 
@@ -182,12 +182,12 @@ plot(years[1:10],mean_envir[1:10],type = "b", main = "% of envir. clauses", xlab
 
 We create a first, very rough indicator of spatial proximity between buyer and supplier. In France, the first two digits of the postal code refer to the department. `LOCAL` takes value 1 if the public purchaser selects a supplier in this own department, 0 otherwise.
 
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 TEDFR$LOCAL<-ifelse(str_sub(TEDFR$CAE_POSTAL_CODE, 1, 2)==str_sub(TEDFR$WIN_POSTAL_CODE, 1, 2),1,0)
 ```
 `r round(mean(TEDFR$LOCAL, na.rm=TRUE)*100,2)` % of public purchasing is made inside the same department.
 
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 table(TEDFR$LOCAL, TEDFR$CAE_TYPE)
 TC <- table(TEDFR$LOCAL, TEDFR$CAE_TYPE)
 ```
