@@ -293,6 +293,8 @@ l'échelle du marché et donc pas nécessairement du lot considéré, ces inform
 - local_dep (0/1) indique si un marché est conclu auprès d'une entreprise localisée dans le même département que l'acheteur
 - à différentes échelles, on retrouve la même logique pour les indicateurs local_NUTS, local_NUTS4 et local_NUTS3 (NUTS à 5 caractères, 4 caractères et 3 caractères, ce qui correspond à 3 niveaux de proximité géographique).
 
+Cette base est aussi très dépendante de la qualité des données saisies en amont. Ainsi en est-il des champs non renseignés ou des données saisies dans un format impropre.
+
 
 # Analyse des données 2020
 
@@ -339,5 +341,42 @@ choroLayer(spdf = nuts0.spdf, df = region, var = "Freq", legend.pos = "topright"
     #        south = TRUE)
 
 ```
+Ces derniers restent cependant très largemet minoritaires. 
+On observe ainsi en 2020 `r NROW(BOAMP_df[which(str_sub(BOAMP_df$suppl_codenuts,1,2)!="FR"),]) ` marchés attribués à une entreprise hors du territoire national, pour un total de `r NROW(BOAMP_df)` contrats.
+
+L'usage des clauses environnementales s'avère très hétérogène à l'échelle territoriale :
+```{r clauses_envi, echo=TRUE}
+boamp_test<-BOAMP_df
+
+NUTS_FRANCE_CORRESPONDANCES <- read.delim(str_c(data_dir, "/NUTS_FRANCE_CORRESPONDANCES.txt"), header=FALSE)
+
+
+boamp_test<-left_join(boamp_test, NUTS_FRANCE_CORRESPONDANCES, by=c("adjudicateurnuts" = "V4"))
+boamp_test$adjudicateurnuts<-ifelse(!is.na(boamp_test$V3),boamp_test$V3,boamp_test$adjudicateurnuts )
+data(nuts2006)
+
+graph_data<-aggregate(boamp_test[which(str_length(boamp_test$adjudicateurnuts)==5),]$envir*100,by=list(boamp_test[which(str_length(boamp_test$adjudicateurnuts)==5),]$adjudicateurnuts), FUN=mean)
+names(graph_data)[names(graph_data) == 'Group.1'] <- 'id'
+graph_data <-as.data.frame(graph_data)
+graph_data<-graph_data[which(str_sub(graph_data$id,1,2)=="FR"),]
+choroLayer(spdf = nuts3.spdf, df = graph_data, var = "x", legend.title.txt = "% clause envir.", method = "quantile", nclass = 5,
+           col = carto.pal(pal1 = "green.pal", n1 = 5))
+```
+
+
+Il en est de même des clauses sociales :
+```{r clauses_soc, echo=TRUE}
+
+graph_data<-aggregate(boamp_test[which(str_length(boamp_test$adjudicateurnuts)==5),]$sociaux*100,by=list(boamp_test[which(str_length(boamp_test$adjudicateurnuts)==5),]$adjudicateurnuts), FUN=mean)
+names(graph_data)[names(graph_data) == 'Group.1'] <- 'id'
+graph_data <-as.data.frame(graph_data)
+graph_data<-graph_data[which(str_sub(graph_data$id,1,2)=="FR"),]
+choroLayer(spdf = nuts3.spdf, df = graph_data, var = "x", legend.title.txt = "% clause soc.", method = "quantile", nclass = 5,
+           col = carto.pal(pal1 = "red.pal", n1 = 5),
+           border = "grey40",)
+
+
+```
+
 
 

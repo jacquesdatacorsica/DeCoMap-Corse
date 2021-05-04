@@ -148,7 +148,7 @@ barplot(table_1, legend.text = "Nb of contracts by year")
 
 In order to focus on effective awarded contracts, we don't consider raws of the database without any name for the selected supplier. Similarly, sometimes, the award notice reflects an unsuccessful call for tenders. In order to suppress the corresponding lines, it should be noticed that in the database, the *WIN_NAME* presents terms like "infructueux" or "sans suite". We now reduce our attention to the successful call for tenders
 
-```{r}
+```{r,  echo=TRUE}
 TEDFR<-TEDFR[which(TEDFR$WIN_NAME!=""),]
 TEDFR<-TEDFR[which(str_detect(TEDFR$WIN_NAME, "infructueux")==FALSE),]
 TEDFR<-TEDFR[which(str_detect(TEDFR$WIN_NAME, "sans suite")==FALSE),]
@@ -158,7 +158,7 @@ We've got now only `r length(TEDFR$ID_NOTICE_CAN)` contracts in the French Datab
 ## environmental clauses
 In order to infer the existence of environmental clauses as specific evaluation criteria, we create a specific variable that take value 1 if environmental concerns appear in the award notice, 0 otherwise. The notice is written in French, such that we consider a environmental concern if we can detect string like "développement durable", "environnement" (for environnement, environementAL  a.s.o), "écologi" (for écologiQUE, écologiE) and "RSE" (Social and Environmental Responsability).
 
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 TEDFR$ENVIR<-ifelse(str_detect(TEDFR$CRIT_CRITERIA, "développement durable")==TRUE|str_detect(TEDFR$CRIT_CRITERIA, "environnement")==TRUE  |str_detect(TEDFR$CRIT_CRITERIA, "écologi")==TRUE|str_detect(TEDFR$CRIT_CRITERIA, " RSE")==TRUE,1,0)
 ```
 
@@ -199,7 +199,7 @@ round(TC[2]/colSums(TC),2)
 
 Of course, it varies also a lot depending on the type of the contract :
 
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 TC2 <- table(TEDFR$LOCAL, TEDFR$TYPE_OF_CONTRACT)
 ```
 ```{r}
