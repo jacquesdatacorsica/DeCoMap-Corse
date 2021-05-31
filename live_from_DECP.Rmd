@@ -112,6 +112,7 @@ df<-left_join(df2,df, by="uid")
 rm(base_sirene,df2,nb_tit,tit,uid)
 ```
 
+
 # Add variables in our dataframe
 
 
@@ -169,7 +170,10 @@ df$nuts3_ach<-str_sub(df$nuts_ach,1,3)
 table(df$nuts3_ach, df$nuts3_tit)
 ```
 # Manipulating the database: creating maps
-
+```{r, echo=FALSE}
+# save the dataframe for next fast download
+saveRDS(df, file="DECP_df.Rda")
+```
 ```{r}
 # Number of contracts for 2006
 data(nuts2006)
