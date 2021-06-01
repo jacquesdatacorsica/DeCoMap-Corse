@@ -473,9 +473,26 @@ table3%&gt;%datatable(extensions = &#39;Buttons&#39;,
 <ul>
 <li><p>que par nature, la base TED, compte-tenu des seuils élevés qu’elle implique, n’est pas d’une grande utilité pour connaître les pratiques d’achats principalement réalisés par les “petits” acheteurs.</p></li>
 <li><p>que la base BOAMP, parce qu’elle est impérative également uniquement au-dessus de seuils de passation élevés, ne s’avère pas très informative non plus</p></li>
-<li><p>que les DECP fonctionnent naturellement bien mieux, mais que d’une part, leur antériorité est limitée à des évènement très récents et que, d’autre part, comme la remontée des DECP sur data.gouv.fr n’est que parcellaire,</p></li>
+<li><p>que les DECP fonctionnent naturellement bien mieux, mais que d’une part, leur antériorité est limitée à des évènement très récents et que, d’autre part, comme la remontée des DECP sur data.gouv.fr n’est que parcellaire, elle ne permet pas pour l’heure une vue exhaustive des marchés</p></li>
 <li><p>et surtout, qu’ <strong>un marché de 2017 à 182 000 euros passe totalement sous les radars</strong>. Sans l’article de presse et les indiscrétions auxquelles les journalistes ont eu accès, aucune chance de tomber sur ce cas pourtant intéressant. C’est sans doute la principale information de cette rapide enquête !</p></li>
 </ul>
+<p>Reste à rechercher directement dans les marchés éventuellement attribués à l’entreprise identifiée, si un éventuel accord cadre n’aurait pas été le véhicule juridique du contrat en cause</p>
+<pre class="r"><code>enquête4&lt;-TED[which(grepl(&quot;girard-sudron&quot;, TED$WIN_NAME, ignore.case = TRUE)==TRUE |grepl(&quot;girard sudron&quot;, TED$WIN_NAME, ignore.case = TRUE)==TRUE),]</code></pre>
+<p>Rien à l’échelle du TED…</p>
+<pre class="r"><code>enquête5&lt;-BOAMP[which(grepl(&quot;girard-sudron&quot;, BOAMP$suppl_denomination, ignore.case = TRUE)==TRUE |grepl(&quot;girard sudron&quot;, BOAMP$suppl_denomination, ignore.case = TRUE)==TRUE),]</code></pre>
+<p>Et rien non plus dans le BOAMP si l’on recherche à partir de la dénomination… On peut néanmoins tenter une recherche sur le numéro de SIRET que l’on peut aisément retrouver directement dans la base SIRENE.</p>
+<pre class="r"><code>enquête6&lt;-base_sirene[which(grepl(&quot;girard-sudron&quot;, base_sirene$enseigne1Etablissement , ignore.case = TRUE)==TRUE |grepl(&quot;girard sudron&quot;,  base_sirene$enseigne1Etablissement, ignore.case = TRUE)==TRUE),]
+head(enquête6)</code></pre>
+<pre><code>## # A tibble: 1 x 5
+##   siret   sirene_code_post… codeCedexEtablis… enseigne1Etabli… activitePrincipa…
+##   &lt;chr&gt;   &lt;chr&gt;             &lt;chr&gt;             &lt;chr&gt;            &lt;chr&gt;            
+## 1 562057… 41200             &lt;NA&gt;              GIRARD SUDRON    82.11Z</code></pre>
+<pre class="r"><code>enquête7&lt;-BOAMP[which(BOAMP$suppl_siret ==&quot;56205749700082&quot;),]</code></pre>
+<p>Sachant que moins de 7 % des marchés du BOAMP identifient proprement le SIRET du fournisseur, cette absence de résultat n’est pas une grande surprise.</p>
+<pre class="r"><code>enquête8&lt;-TED[which(TED$WIN_NATIONALID ==&quot;56205749700082&quot;),]</code></pre>
+<p>Rien non plus à l’échelle européenne.</p>
+<pre class="r"><code>enquête9&lt;-df[which(df$siret ==&quot;56205749700082&quot;),]</code></pre>
+<p>et rien dans les DECP (au jour de ma mise à jour, il y a 2 mois)</p>
 </div>
 
 
