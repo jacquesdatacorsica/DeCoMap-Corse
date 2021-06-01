@@ -155,6 +155,45 @@ En résumé, qu'est-ce que ce très rapide cas pratique nous enseigne ?
 
 * que la base BOAMP, parce qu'elle est impérative également uniquement au-dessus de seuils de passation élevés, ne s'avère pas très informative non plus
 
-* que les DECP fonctionnent naturellement bien mieux, mais que d'une part, leur antériorité est limitée à des évènement très récents et que, d'autre part, comme la remontée des DECP sur data.gouv.fr n'est que parcellaire, 
+* que les DECP fonctionnent naturellement bien mieux, mais que d'une part, leur antériorité est limitée à des évènement très récents et que, d'autre part, comme la remontée des DECP sur data.gouv.fr n’est que parcellaire, elle ne permet pas pour l'heure une vue exhaustive des marchés
 
 * et surtout, qu' **un marché de 2017 à 182 000 euros passe totalement sous les radars**. Sans l'article de presse et les indiscrétions auxquelles les journalistes ont eu accès, aucune chance de tomber sur ce cas pourtant intéressant. C'est sans doute la principale information de cette rapide enquête ! 
+
+
+Reste à rechercher directement dans les marchés éventuellement attribués à l'entreprise identifiée, si un éventuel accord cadre n'aurait pas été le véhicule juridique du contrat en cause
+
+```{r , echo=TRUE,  cache=TRUE}
+
+enquête4<-TED[which(grepl("girard-sudron", TED$WIN_NAME, ignore.case = TRUE)==TRUE |grepl("girard sudron", TED$WIN_NAME, ignore.case = TRUE)==TRUE),]
+```
+Rien à l'échelle du TED...
+
+```{r , echo=TRUE,  cache=TRUE}
+
+enquête5<-BOAMP[which(grepl("girard-sudron", BOAMP$suppl_denomination, ignore.case = TRUE)==TRUE |grepl("girard sudron", BOAMP$suppl_denomination, ignore.case = TRUE)==TRUE),]
+```
+Et rien non plus dans le BOAMP si l'on recherche à partir de la dénomination...
+On peut néanmoins tenter une recherche sur le numéro de SIRET que l'on peut aisément retrouver directement dans la base SIRENE.
+
+```{r , echo=TRUE,  cache=TRUE}
+
+enquête6<-base_sirene[which(grepl("girard-sudron", base_sirene$enseigne1Etablissement , ignore.case = TRUE)==TRUE |grepl("girard sudron",  base_sirene$enseigne1Etablissement, ignore.case = TRUE)==TRUE),]
+head(enquête6)
+```
+```{r , echo=TRUE,  cache=TRUE}
+
+enquête7<-BOAMP[which(BOAMP$suppl_siret =="56205749700082"),]
+```
+Sachant que moins de 7 % des marchés du BOAMP identifient proprement le SIRET du fournisseur, cette absence de résultat n'est pas une grande surprise.
+
+```{r , echo=TRUE,  cache=TRUE}
+
+enquête8<-TED[which(TED$WIN_NATIONALID =="56205749700082"),]
+```
+Rien non plus à l'échelle européenne.
+
+```{r , echo=TRUE,  cache=TRUE}
+
+enquête9<-df[which(df$siret =="56205749700082"),]
+```
+et rien dans les DECP (au jour de ma mise à jour, il y a 2 mois)
