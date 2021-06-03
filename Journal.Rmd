@@ -87,7 +87,7 @@ rm(df2,nb_tit,tit,uid)
 ---
 ---
 
-au fil de l'actualité
+Au fil de l'actualité
 =====================
 
 <div class="row">
@@ -147,6 +147,55 @@ table(TED_CULTURE_FR$TOP_TYPE)
 ```
 
 AWP signifiant  “award without prior publication of a contract notice”, COD “competitive dialogue”, NOC/NOP “negotiated without a call for competition”, OPE “open", RES “restricted”.
+
+Les données européennes nous permettent de confronter les pratiques en terme de prestation de service artistique. Pour identifier les spécificités du secteur, rappelons que sur l'ensemble des marchés publics, la procédure dite ouverte domine très largement :
+
+```{r culture22, echo=TRUE,  cache=TRUE}
+data1=as.data.frame(table(TED$TOP_TYPE))
+colnames(data1)=c("NB","TOP")
+ggplot(data1, aes(x="", y=TOP, fill=NB)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) 
+
+```
+L'acquisition de prestation artistique est donc fortement atypique : 
+```{r culture23, echo=TRUE,  cache=TRUE}
+
+data=as.data.frame(table(TED_CULTURE$TOP_TYPE))
+colnames(data)=c("NB","TOP")
+ggplot(data, aes(x="", y=TOP, fill=NB)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) 
+```
+
+Et la France est particulièrement atypique en ce domaine : 
+
+```{r culture24, echo=TRUE,  cache=TRUE}
+data2=as.data.frame(table(TED_CULTURE_FR$TOP_TYPE))
+colnames(data2)=c("NB","TOP")
+ggplot(data2, aes(x="", y=TOP, fill=NB)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) 
+```
+Pour une meilleure comparaison, voici les données européennes hors France :
+```{r culture25, echo=TRUE,  cache=TRUE}
+
+data2=as.data.frame(table(TED_CULTURE_FR$TOP_TYPE))
+colnames(data2)=c("NB","TOP")
+ggplot(data2, aes(x="", y=TOP, fill=NB)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) 
+
+
+data3=as.data.frame(table(TED_CULTURE[which(TED_CULTURE$ISO_COUNTRY_CODE!="FR"),]$TOP_TYPE))
+colnames(data3)=c("NB","TOP")
+ggplot(data3, aes(x="", y=TOP, fill=NB)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) 
+```
+
+
+
 Sans surprise (puisque c'est le reproche qui est fait à la municiaplité grenobloise, on ne retrouve pas Grnoble dans la liste des autorités concédantes). On pourra cependant noter qu'on obtient malgré tout de l'information pour 216 marchés sans publication préalable de notice et 78 marchés négiciés sans appel à concurrence. L'absence d'obligation de publicité ou de mise en concurrence n'exclue pas l'absence de publicité (et donc pour nous de données ouvertes) sur les attributions.
 
 On constatera au passage la taille de ce "marché" : `r sum(TED_CULTURE_FR$VALUE_EURO_FIN_2, na.rm = TRUE)` euros de prestations payées en France entre 2010 et 2019 pour ces marchés référencés sur la TED à travers `r length(TED_CULTURE_FR$ID_NOTICE_CAN)` marchés
