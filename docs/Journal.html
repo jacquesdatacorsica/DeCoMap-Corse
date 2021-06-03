@@ -407,7 +407,7 @@ div.tocify {
 <h2>—</h2>
 </div>
 <div id="au-fil-de-lactualité" class="section level1">
-<h1>au fil de l’actualité</h1>
+<h1>Au fil de l’actualité</h1>
 <div class="row">
 <div class="col-md-6" markdown="1">
 <table>
@@ -467,7 +467,40 @@ datatable(TED_CULTURE_FR[,c(1,10,32,57)], extensions = &#39;ColReorder&#39;, opt
 <pre><code>## 
 ## AWP COD NIC NOC OPE RES 
 ## 216   1   5  78 198  95</code></pre>
-<p>AWP signifiant “award without prior publication of a contract notice”, COD “competitive dialogue”, NOC/NOP “negotiated without a call for competition”, OPE “open”, RES “restricted”. Sans surprise (puisque c’est le reproche qui est fait à la municiaplité grenobloise, on ne retrouve pas Grnoble dans la liste des autorités concédantes). On pourra cependant noter qu’on obtient malgré tout de l’information pour 216 marchés sans publication préalable de notice et 78 marchés négiciés sans appel à concurrence. L’absence d’obligation de publicité ou de mise en concurrence n’exclue pas l’absence de publicité (et donc pour nous de données ouvertes) sur les attributions.</p>
+<p>AWP signifiant “award without prior publication of a contract notice”, COD “competitive dialogue”, NOC/NOP “negotiated without a call for competition”, OPE “open”, RES “restricted”.</p>
+<p>Les données européennes nous permettent de confronter les pratiques en terme de prestation de service artistique. Pour identifier les spécificités du secteur, rappelons que sur l’ensemble des marchés publics, la procédure dite ouverte domine très largement :</p>
+<pre class="r"><code>data1=as.data.frame(table(TED$TOP_TYPE))
+colnames(data1)=c(&quot;NB&quot;,&quot;TOP&quot;)
+ggplot(data1, aes(x=&quot;&quot;, y=TOP, fill=NB)) +
+  geom_bar(stat=&quot;identity&quot;, width=1) +
+  coord_polar(&quot;y&quot;, start=0) </code></pre>
+<p><img src="Journal_files/figure-html/culture22-1.png" width="672" /> L’acquisition de prestation artistique est donc fortement atypique :</p>
+<pre class="r"><code>data=as.data.frame(table(TED_CULTURE$TOP_TYPE))
+colnames(data)=c(&quot;NB&quot;,&quot;TOP&quot;)
+ggplot(data, aes(x=&quot;&quot;, y=TOP, fill=NB)) +
+  geom_bar(stat=&quot;identity&quot;, width=1) +
+  coord_polar(&quot;y&quot;, start=0) </code></pre>
+<p><img src="Journal_files/figure-html/culture23-1.png" width="672" /></p>
+<p>Et la France est particulièrement atypique en ce domaine :</p>
+<pre class="r"><code>data2=as.data.frame(table(TED_CULTURE_FR$TOP_TYPE))
+colnames(data2)=c(&quot;NB&quot;,&quot;TOP&quot;)
+ggplot(data2, aes(x=&quot;&quot;, y=TOP, fill=NB)) +
+  geom_bar(stat=&quot;identity&quot;, width=1) +
+  coord_polar(&quot;y&quot;, start=0) </code></pre>
+<p><img src="Journal_files/figure-html/culture24-1.png" width="672" /> Pour une meilleure comparaison, voici les données européennes hors France :</p>
+<pre class="r"><code>data2=as.data.frame(table(TED_CULTURE_FR$TOP_TYPE))
+colnames(data2)=c(&quot;NB&quot;,&quot;TOP&quot;)
+ggplot(data2, aes(x=&quot;&quot;, y=TOP, fill=NB)) +
+  geom_bar(stat=&quot;identity&quot;, width=1) +
+  coord_polar(&quot;y&quot;, start=0) </code></pre>
+<p><img src="Journal_files/figure-html/culture25-1.png" width="672" /></p>
+<pre class="r"><code>data3=as.data.frame(table(TED_CULTURE[which(TED_CULTURE$ISO_COUNTRY_CODE!=&quot;FR&quot;),]$TOP_TYPE))
+colnames(data3)=c(&quot;NB&quot;,&quot;TOP&quot;)
+ggplot(data3, aes(x=&quot;&quot;, y=TOP, fill=NB)) +
+  geom_bar(stat=&quot;identity&quot;, width=1) +
+  coord_polar(&quot;y&quot;, start=0) </code></pre>
+<p><img src="Journal_files/figure-html/culture25-2.png" width="672" /></p>
+<p>Sans surprise (puisque c’est le reproche qui est fait à la municiaplité grenobloise, on ne retrouve pas Grnoble dans la liste des autorités concédantes). On pourra cependant noter qu’on obtient malgré tout de l’information pour 216 marchés sans publication préalable de notice et 78 marchés négiciés sans appel à concurrence. L’absence d’obligation de publicité ou de mise en concurrence n’exclue pas l’absence de publicité (et donc pour nous de données ouvertes) sur les attributions.</p>
 <p>On constatera au passage la taille de ce “marché” : 1.5848091^{8} euros de prestations payées en France entre 2010 et 2019 pour ces marchés référencés sur la TED à travers 593 marchés</p>
 <p>On peut rechercher les mêmes critères sur la base BOAMP (données à partir de mars 2015) :</p>
 <pre class="r"><code>BOAMP_CULTURE&lt;-BOAMP[which(BOAMP$lot_cpv ==&quot;92310000&quot;|BOAMP$lot_cpv==&quot;92312000&quot;|BOAMP$lot_cpv==&quot;92312200&quot;|BOAMP$lot_cpv==&quot;92312240&quot;),]
