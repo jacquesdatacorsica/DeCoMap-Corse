@@ -6,6 +6,8 @@ navbar:
       href: index.html
     - text: "Journal"
       href: Journal.html
+    - text: "Cartographie"
+      href: carto.html
     - text: "live from D.E.C.P."
       href: live_from_DECP.html
     - text: "Live from T.E.D."
