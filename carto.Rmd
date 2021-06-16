@@ -21,8 +21,8 @@ knitr::opts_chunk$set( warning = FALSE,  message = FALSE, cache.lazy = FALSE)
 
 Naviguez sur la carte des DECP, localisés par le code postal de l'acheteur. Chaque marqueur est clicable et permet d'identifier le marché en question.
 
-```{r carto,  echo=TRUE,  cache=TRUE}
 
+```{r init,  echo=FALSE,  cache=TRUE}
 # loading the required packages
 library(ggplot2)
 library(sp)
@@ -39,6 +39,11 @@ library(cartography)
 library(stringr)
 
 df<-read.csv("data/df_maj.csv")
+```
+
+
+```{r carto,  echo=TRUE,  cache=TRUE}
+
 
 lat<-as.numeric(df$coordonnees_gps1.x)
 lon<-as.numeric(df$coordonnees_gps2.x)
@@ -47,7 +52,7 @@ data_graph<-cbind(lat, lon)
 data_graph<-as.data.frame(data_graph)
 
 
-leaflet(data=data_graph) %>% addTiles() %>% addMarkers(~lon, ~lat, popup =  str_c(as.character((df$acheteur.nom)), " achète le ", mday(df$dateNotification), " ", month(df$dateNotification), " ", year(df$dateNotification), " à ",  as.character((df$tit)), " situé à ", round(df$distance)," km de là"," pour l'objet suivant : ", as.character((df$objet))), clusterOptions = markerClusterOptions())
+leaflet(data=data_graph) %>% addTiles() %>% addMarkers(~lon, ~lat, popup =  str_c(as.character((df$acheteur.nom)), " achète le ", mday(df$dateNotification), " ", month(df$dateNotification), " ", year(df$dateNotification), " à ",  as.character((df$tit)), " situé à ", round(df$distance)," km de là", " et pour un montant global du lot de ", df$ , " pour l'objet suivant : ", as.character((df$objet))), clusterOptions = markerClusterOptions())
 
 ```
 

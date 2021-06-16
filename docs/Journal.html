@@ -375,6 +375,9 @@ div.tocify {
   <a href="Journal.html">Journal</a>
 </li>
 <li>
+  <a href="carto.html">Cartographie</a>
+</li>
+<li>
   <a href="live_from_DECP.html">live from D.E.C.P.</a>
 </li>
 <li>
@@ -436,6 +439,101 @@ div.tocify {
 <div id="section-1" class="section level2">
 <h2>—</h2>
 </div>
+</div>
+<div id="achat-public-local-et-préférence-régionale-état-des-lieux" class="section level1">
+<h1>Achat public local et préférence régionale, état des lieux</h1>
+<p>DATE : 16 juin 2021</p>
+<p>Les campagnes des élections régionales ont cela d’intéressant que c’est à chaque fois l’occasion de reparler commande publique, et achat local. Pour un bon nombre de plateformes politiques, on voit apparaître la question de l’usage des marchés publics à des fins de redynamisation de l’activité régionale. Qu’elles prennent la forme d’un engagement vers une “préférence régionale”, ou du choix du “circuit court”, ces promesses reviennent au rythme des campagnes. Pour mémoire, <a href="https://www.lepoint.fr/politique/au-menu-des-regionales-le-manger-local-et-parfois-la-preference-regionale-01-12-2015-1986411_20.php">en 2015, dans le Point</a>, ces thèmes apparaîssaient déjà au coeur de la campagne… Mais que nous disent concrêtement des Données Essentielles de la Commande Publique ? rapide tour d’horizon à partir des données “enrichies” fournies par le Ministère de l’économie <a href="https://data.economie.gouv.fr/explore/dataset/decp_augmente/table/?location=6,46.87521,-0.17578&amp;basemap=jawg.light">ici</a></p>
+<pre class="r"><code>decp_augmente$local &lt;- ifelse(decp_augmente$libelleRegionAcheteur ==decp_augmente$libelleRegionEtablissement,1,0)
+
+round(mean(decp_augmente$local)*100,2)</code></pre>
+<pre><code>## [1] 63.69</code></pre>
+<p>Ainsi, plus de 63.69 % des marchés publics donnent lieu à un contrat à destination d’une entreprise appartenant à la même région que l’acheteur. Cette proportion dépend fortement de la nature du marché.</p>
+<pre class="r"><code>decp_augmente$local &lt;- ifelse(decp_augmente$libelleRegionAcheteur ==decp_augmente$libelleRegionEtablissement,1,0)
+
+aggregate(local~natureObjetMarche, data = decp_augmente, mean)</code></pre>
+<pre><code>##   natureObjetMarche     local
+## 1       Fournitures 0.4686058
+## 2          Services 0.5816647
+## 3           Travaux 0.8101342</code></pre>
+<p>Cet argument de proximité (achat dans la même région) s’observe aussi naturellement dans les distances entre acheteur et fournisseur :</p>
+<pre class="r"><code>aggregate(as.numeric(distanceAcheteurEtablissement)~natureObjetMarche, data = decp_augmente, mean, rm.na=TRUE)</code></pre>
+<pre><code>##   natureObjetMarche as.numeric(distanceAcheteurEtablissement)
+## 1       Fournitures                                 282.23794
+## 2          Services                                 256.35286
+## 3           Travaux                                  87.32694</code></pre>
+<p>S’agissant des fournitures, la nature des produits joue naturellement à plein. Si l’on se concentre par exemple sur les seuls produits agricoles, de l’élevage, de la pêche, de la sylviculture et produits connexes (code CPV 03), on obtient :</p>
+<pre class="r"><code>aggregate(local~natureObjetMarche, data = decp_augmente[which(str_sub(decp_augmente$codeCPV_Original,1,2)==&quot;03&quot;),], mean, rm.na=TRUE)</code></pre>
+<pre><code>##   natureObjetMarche     local
+## 1       Fournitures 0.6394389</code></pre>
+<p>Un argument souvent lié à l’échat local est sa capacité à favoriser l’accès des PME à la commande publique, ce que semble confirmer le petit tableau suivant comparant la proportion d’achat à une PME selon que l’achat est local ou non.</p>
+<pre class="r"><code>decp_augmente$PMEoui &lt;-ifelse(decp_augmente$categorieEtablissement==&quot;PME&quot;,1,0)
+aggregate(local~PMEoui, data = decp_augmente, mean, rm.na=TRUE)</code></pre>
+<pre><code>##   PMEoui     local
+## 1      0 0.5507377
+## 2      1 0.7155433</code></pre>
+<p>Une analyse (statistique) un peu plus poussée est cependant nécessaire. Testons la probabilité d’attribuer un marché à une PME en fonction de plusieurs paramètres… Pour cela un petit logit est bien utile ! (attention, il s’agit d’un billet de blog, un travail économétrique bien plus consistant serait nécessaire pour tirer des conclusions scientifiquement recevables, contrôler toute une série de biais potentiels, mais ce sera l’objet peut-être d’un papier académique, pas d’un simple post !).</p>
+<p>Commençons par calculer l’odds-ratio du simple lien “achat local” / “achat à une PME” :</p>
+<pre class="r"><code>model_PME1 &lt;- glm(PMEoui ~ local ,data = decp_augmente, family = binomial)
+
+logit_PME1.or = exp(coef(model_PME1))
+library(stargazer)
+stargazer(model_PME1, title=&quot;Odds Ratio&quot;, coef=list(logit_PME1.or),
+          ci=TRUE, ci.level=0.90, single.row=TRUE, type=&quot;text&quot;)</code></pre>
+<pre><code>## 
+## Odds Ratio
+## =============================================
+##                       Dependent variable:    
+##                   ---------------------------
+##                             PMEoui           
+## ---------------------------------------------
+## local               2.052*** (2.040, 2.064)  
+## Constant            0.693*** (0.684, 0.703)  
+## ---------------------------------------------
+## Observations                336,042          
+## Log Likelihood           -227,642.100        
+## Akaike Inf. Crit.         455,288.200        
+## =============================================
+## Note:             *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p>Contrôlons par d’autres caractéristiques du marchés (nature du marché, choix de procédure, taille du marchés en terme de durée et de montant)</p>
+<pre class="r"><code>model_PME &lt;- glm(PMEoui ~ local + natureObjetMarche + procedure+ as.numeric(montantCalcule) + as.numeric(dureeMoisCalculee) ,data = decp_augmente, family = binomial)
+
+logit_PME.or = exp(coef(model_PME))
+library(stargazer)
+stargazer(model_PME, title=&quot;Odds Ratio&quot;, coef=list(logit_PME.or),
+          ci=TRUE, ci.level=0.90, single.row=TRUE, type=&quot;text&quot;)</code></pre>
+<pre><code>## 
+## Odds Ratio
+## ==========================================================================================================
+##                                                                                    Dependent variable:    
+##                                                                                ---------------------------
+##                                                                                          PMEoui           
+## ----------------------------------------------------------------------------------------------------------
+## local                                                                            1.794*** (1.781, 1.806)  
+## natureObjetMarcheServices                                                        1.141*** (1.126, 1.156)  
+## natureObjetMarcheTravaux                                                         1.371*** (1.354, 1.387)  
+## procedureAppel d&#39;offres ouvert                                                   0.903*** (0.871, 0.935)  
+## procedureAppel d&#39;offres restreint                                                1.491*** (1.409, 1.573)  
+## procedureDialogue compétitif                                                     2.058*** (1.915, 2.202)  
+## procedureMarché négocié sans publicité ni mise en concurrence préalable          1.613*** (1.556, 1.671)  
+## procedureMarché passé sans publicité ni mise en concurrence préalable            0.804*** (0.638, 0.970)  
+## procedureMarché public négocié sans publicité ni mise en concurrence préalable   1.513*** (1.439, 1.587)  
+## procedureProcédure adaptée                                                       1.465*** (1.433, 1.497)  
+## procedureProcédure avec négociation                                              1.132*** (1.080, 1.184)  
+## procedureProcédure négociée ouverte                                              1.978*** (1.719, 2.237)  
+## procedureProcédure négociée restreinte                                           1.243*** (0.722, 1.764)  
+## procedureProcédure non négociée ouverte                                          1.633*** (1.255, 2.012)  
+## procedureProcédure non négociée restreinte                                        0.153 (-1.591, 1.898)   
+## as.numeric(montantCalcule)                                                       1.000*** (1.000, 1.000)  
+## as.numeric(dureeMoisCalculee)                                                    1.000*** (0.999, 1.000)  
+## Constant                                                                         0.548*** (0.515, 0.580)  
+## ----------------------------------------------------------------------------------------------------------
+## Observations                                                                             336,042          
+## Log Likelihood                                                                        -223,088.800        
+## Akaike Inf. Crit.                                                                      446,213.700        
+## ==========================================================================================================
+## Note:                                                                          *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p>Si le odds-ratio est sensiblement plus faible que dans l’analyse précédente (signifiant qu’une part des effets mesurés initialement captaient en réalité des effets liés aux paramètres que nous venons d’intégrer), il reste largement supérieur à 1 : toutes choses égales par ailleurs, la probabilité de sélectionner à une PME augmente de 80 % dans le cas d’un achat local (comparativement à un achat effectué dans une autre région).</p>
 </div>
 <div id="les-prestations-artistiques-dans-les-données-de-marchés-publics" class="section level1">
 <h1>Les prestations artistiques dans les données de marchés publics</h1>

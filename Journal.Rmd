@@ -83,6 +83,8 @@ df2<-left_join(df2, base_sirene,by=c("tit"="siret"),keep=TRUE)
 df<-left_join(df2,df, by="uid")
 # Remove unnecessary databases
 rm(df2,nb_tit,tit,uid)
+
+decp_augmente<-read.csv2("data/decp_augmente.csv")
 ```
 ---
 ---
@@ -109,6 +111,76 @@ Au fil de l'actualité
 </div>
 ---
 ---
+# Achat public local et préférence régionale, état des lieux
+
+DATE : 16 juin 2021
+
+Les campagnes des élections régionales ont cela d'intéressant que c'est à chaque fois l'occasion de reparler commande publique, et achat local. Pour un bon nombre de plateformes politiques, on voit apparaître la question de l'usage des marchés publics à des fins de redynamisation de l'activité régionale. Qu'elles prennent la forme d'un engagement vers une "préférence régionale", ou du choix du "circuit court", ces promesses reviennent au rythme des campagnes. Pour mémoire, [en 2015, dans le Point](https://www.lepoint.fr/politique/au-menu-des-regionales-le-manger-local-et-parfois-la-preference-regionale-01-12-2015-1986411_20.php), ces thèmes apparaîssaient déjà au coeur de la campagne...
+Mais que nous disent concrêtement des Données Essentielles de la Commande Publique ? rapide tour d'horizon à partir des données "enrichies" fournies par le Ministère de l'économie [ici](https://data.economie.gouv.fr/explore/dataset/decp_augmente/table/?location=6,46.87521,-0.17578&basemap=jawg.light) 
+
+
+
+```{r achatlocal, echo=TRUE,  cache=TRUE}
+
+decp_augmente$local <- ifelse(decp_augmente$libelleRegionAcheteur ==decp_augmente$libelleRegionEtablissement,1,0)
+
+round(mean(decp_augmente$local)*100,2)
+```
+Ainsi, plus de `r round(mean(decp_augmente$local)*100,2)` % des marchés publics donnent lieu à un contrat à destination d'une entreprise appartenant à la même région que l'acheteur. Cette proportion dépend fortement de la nature du marché.
+
+```{r achatlocal1, echo=TRUE,  cache=TRUE}
+
+decp_augmente$local <- ifelse(decp_augmente$libelleRegionAcheteur ==decp_augmente$libelleRegionEtablissement,1,0)
+
+aggregate(local~natureObjetMarche, data = decp_augmente, mean)
+```
+Cet argument de proximité (achat dans la même région) s'observe aussi naturellement dans les distances entre acheteur et fournisseur :
+
+```{r achatlocal2, echo=TRUE,  cache=TRUE}
+
+aggregate(as.numeric(distanceAcheteurEtablissement)~natureObjetMarche, data = decp_augmente, mean, rm.na=TRUE)
+```
+S'agissant des fournitures, la nature des produits joue naturellement à plein. Si l'on se concentre par exemple sur les seuls produits agricoles, de l'élevage, de la pêche, de la sylviculture et produits connexes (code CPV 03), on obtient :
+
+
+```{r achatlocal3, echo=TRUE,  cache=TRUE}
+
+aggregate(local~natureObjetMarche, data = decp_augmente[which(str_sub(decp_augmente$codeCPV_Original,1,2)=="03"),], mean, rm.na=TRUE)
+```
+Un argument souvent lié à l'échat local est sa capacité à favoriser l'accès des PME à la commande publique, ce que semble confirmer le petit tableau suivant comparant la proportion d'achat à une PME selon que l'achat est local ou non.
+
+```{r achatlocal4, echo=TRUE,  cache=TRUE}
+
+decp_augmente$PMEoui <-ifelse(decp_augmente$categorieEtablissement=="PME",1,0)
+aggregate(local~PMEoui, data = decp_augmente, mean, rm.na=TRUE)
+```
+Une analyse (statistique) un peu plus poussée est cependant nécessaire. Testons la probabilité d'attribuer un marché à une PME en fonction de plusieurs paramètres... Pour cela un petit logit est bien utile ! (attention, il s'agit d'un billet de blog, un travail économétrique bien plus consistant serait nécessaire pour tirer des conclusions scientifiquement recevables, contrôler toute une série de biais potentiels, mais ce sera l'objet peut-être d'un papier académique, pas d'un simple post !).
+
+Commençons par calculer l'odds-ratio du simple lien "achat local" / "achat à une PME" : 
+
+
+```{r achatlocal5, echo=TRUE,  cache=TRUE}
+model_PME1 <- glm(PMEoui ~ local ,data = decp_augmente, family = binomial)
+
+logit_PME1.or = exp(coef(model_PME1))
+library(stargazer)
+stargazer(model_PME1, title="Odds Ratio", coef=list(logit_PME1.or),
+          ci=TRUE, ci.level=0.90, single.row=TRUE, type="text")
+```
+
+Contrôlons par d'autres caractéristiques du marchés (nature du marché, choix de procédure, taille du marchés en terme de durée et de montant)
+
+```{r achatlocal6, echo=TRUE,  cache=TRUE}
+model_PME <- glm(PMEoui ~ local + natureObjetMarche + procedure+ as.numeric(montantCalcule) + as.numeric(dureeMoisCalculee) ,data = decp_augmente, family = binomial)
+
+logit_PME.or = exp(coef(model_PME))
+library(stargazer)
+stargazer(model_PME, title="Odds Ratio", coef=list(logit_PME.or),
+          ci=TRUE, ci.level=0.90, single.row=TRUE, type="text")
+```
+
+Si le odds-ratio est sensiblement plus faible que dans l'analyse précédente (signifiant qu'une part des effets mesurés initialement captaient en réalité des effets liés aux paramètres que nous venons d'intégrer), il reste largement supérieur à 1 : toutes choses égales par ailleurs, la probabilité de sélectionner à une PME augmente de 80 % dans le cas d'un achat local (comparativement à un achat effectué dans une autre région).
+
 # Les prestations artistiques dans les données de marchés publics
 
 DATE : 3 juin 2021
@@ -131,7 +203,7 @@ Sans rentrer dans ce débat juridique intéressant, on peut néanmoins recherche
 * 92312240-5	Services prestés par les artistes
 
 
-Commençons par recenser ces marchés à l'échelle de la TED par des acheteurs français : 
+Commençons par recenser ces marchés à l'échelle de la TED par des acheteurs français :
 
 ```{r culture1, echo=TRUE,  cache=TRUE}
 TED_CULTURE<-TED[which(TED$CPV=="92310000"|TED$CPV=="92312000"|TED$CPV=="92312200"|TED$CPV=="92312240"),]
