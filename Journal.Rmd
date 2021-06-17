@@ -48,19 +48,17 @@ rm(BOAMP_2021,BOAMP_2020,BOAMP_2019,BOAMP_2018,BOAMP_2017,BOAMP_2016,BOAMP_2015)
 
 sirene_csv <- str_c(data_dir, '/', "StockEtablissement_utf8.csv")
 
-base_sirene_global <- read_csv(sirene_csv)
 base_sirene <- read_csv(
   sirene_csv,
-  col_types = cols_only(
+   col_types = cols_only(
     siret = col_character(),
-    codePostalEtablissement = col_character(),
-    codeCedexEtablissement = col_character(),
-    activitePrincipaleEtablissement = col_character(),
-    enseigne1Etablissement = col_character()
+    trancheEffectifsEtablissement=col_character(),
+    etablissementSiege=col_character(),
+    enseigne1Etablissement=col_character(),
+    etatAdministratifEtablissement=col_character()
+    
   )
-) %>%
-  rename(sirene_code_postal=codePostalEtablissement)
-rm(base_sirene_global)
+)
 
 # number of selected suppliers
 nb_tit<-c()
@@ -180,6 +178,46 @@ stargazer(model_PME, title="Odds Ratio", coef=list(logit_PME.or),
 ```
 
 Si le odds-ratio est sensiblement plus faible que dans l'analyse précédente (signifiant qu'une part des effets mesurés initialement captaient en réalité des effets liés aux paramètres que nous venons d'intégrer), il reste largement supérieur à 1 : toutes choses égales par ailleurs, la probabilité de sélectionner à une PME augmente de 80 % dans le cas d'un achat local (comparativement à un achat effectué dans une autre région).
+
+Le paysage des PME recouvre en réalité une immense hétérogénéité. Si l'on s'intéresse à la seule question des effectifs de cette structure, en reprenant la typologie officielle : 
+
+* NN	Unités non employeuses (pas de salarié au cours de l'année de référence et pas d'effectif au 31/12). Cette tranche peut contenir quelques effectifs inconnus
+* 00	0 salarié (n'ayant pas d'effectif au 31/12 mais ayant employé des salariés au cours de l'année de référence)
+* 01	1 ou 2 salariés
+* 02	3 à 5 salariés
+* 03	6 à 9 salariés
+* 11	10 à 19 salariés
+* 12	20 à 49 salariés
+* 21	50 à 99 salariés
+* 22	100 à 199 salariés
+* 31	200 à 249 salariés
+* 32	250 à 499 salariés
+* 41	500 à 999 salariés
+* 42	1 000 à 1 999 salariés
+* 51	2 000 à 4 999 salariés
+* 52	5 000 à 9 999 salariés
+* 53	10 000 salariés et plus
+
+nous pouvons déjà étudier la structure des PME dans leur ensemble (en recherchant la répartition par classe sur les seuls établissements actifs de la base SIRENE)
+
+```{r achatlocal7, echo=TRUE,  cache=TRUE}
+
+decp_augmente<-left_join(decp_augmente, base_sirene,by=c("siretEtablissement"="siret"))
+
+
+base_sirene$trancheEffectifsEtablissement <-ifelse(base_sirene$trancheEffectifsEtablissement=="NN", "00",base_sirene$trancheEffectifsEtablissement)
+
+decp_augmente$trancheEffectifsEtablissement <-ifelse(decp_augmente$trancheEffectifsEtablissement=="NN", "00", decp_augmente$trancheEffectifsEtablissement)
+
+
+prop.table(table(base_sirene[which(base_sirene$trancheEffectifsEtablissement<"41" & base_sirene$etatAdministratifEtablissement=="A"),]$trancheEffectifsEtablissement))
+
+```
+
+```{r achatlocal8, echo=TRUE,  cache=TRUE}
+prop.table(table(decp_augmente[which(decp_augmente$categorieEtablissement=="PME"),]$trancheEffectifsEtablissement))
+```
+On observe, assez naturellement, une sous-représentation dans les titulaire de marchés publics des plus petites des TPE (jusqu'à 5 salariés). De manière peut-être un peu contre-intuitive (et à croiser sans doute avec la caractéristique des marchés), des PME de petite taille (moins de 50 salariés) sont assez massez présentes dans les marchés publics attribués.
 
 # Les prestations artistiques dans les données de marchés publics
 
